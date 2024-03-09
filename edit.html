@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.css" integrity="sha512-wJgJNTBBkLit7ymC6vvzM1EcSWeM9mmOu+1USHaRBbHkm6W9EgM0HY27+UtUaprntaYQJF75rc8gjxllKs5OIQ==" crossorigin="anonymous" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js" integrity="sha512-zlWWyZq71UMApAjih4WkaRpikgY9Bz1oXIW5G0fED4vk14JjGlQ1UmkGM392jEULP8jbNMiwLWdM8Z87Hu88Fw==" crossorigin="anonymous"></script>
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+	<script src="https://xembook.github.io/nem2-browserify/symbol-sdk-pack-2.0.4.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ejs/ejs.min.js"></script>
+
+	<script src="js/config.js"></script>
+	<script src="js/symapp.js"></script>
+<style>
+.jq-toast-wrap {
+    width:250px;
+}
+
+.div-list {
+	list-style-type: disc; /* リストアイテムのマーカーを設定 */
+	margin: 0; /* マージンをリセット */
+	padding: 0; /* パディングをリセット */
+}
+
+.chapter {
+	border: 1px solid #ff0000;
+	box-sizing: border-box;
+	margin: 1px;
+	display: list-item; /* リストアイテムとして表示 */
+	margin-left: 1.4em; /* 左マージンを設定して、マーカーの位置を調整 */
+}
+
+.indented {
+    padding-left: 20px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>みんなの憲章</h1>
+<div id="output" class="div-list"></div>
+<hr>
+<h4>履歴</h4>
+<ul id="history"></ul>
+</div>
+
+<!-- 修正提案選択モーダル -->
+<div class="modal fade" id="modal_update" tabindex="-1" role="dialog">
+<div class="modal-dialog" role="document"><div class="modal-content">
+
+	<div class="modal-header">
+		<h5 class="modal-title">修正提案</h5>
+		<button type="button" class="close" data-dismiss="modal" aria-label="閉じる"><span aria-hidden="true">&times;</span></button>
+	</div>
+	<div class="modal-body">
+		<div>
+			<label><b>提案先アドレス</b><br></label>
+			<div id="modal_update_next"></div>
+			<br>
+			<label><b>修正対象ドキュメント</b><br></label>
+			<div id="modal_update_doc"></div>
+			<br>
+			<label><b>修正提案ドキュメント</b><br></label>
+			<textarea class="form-control keyarea" id="modal_update_textarea" rows="2"></textarea>
+			<br>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-primary" onclick="okModalUpdate()">提案</button>
+		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
+	</div><!-- /.modal-footer -->
+</div></div><!-- /.modal-content --><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- 追記提案選択モーダル -->
+<div class="modal fade" id="modal_append" tabindex="-1" role="dialog">
+<div class="modal-dialog" role="document"><div class="modal-content">
+
+	<div class="modal-header">
+		<h5 class="modal-title">追記提案</h5>
+		<button type="button" class="close" data-dismiss="modal" aria-label="閉じる"><span aria-hidden="true">&times;</span></button>
+	</div>
+	<div class="modal-body">
+		<div>
+			<label><b>提案先アドレス</b><br></label>
+			<div id="modal_append_next"></div>
+			<br>
+			<label><b>追記提案ドキュメント</b><br></label>
+			<div id="modal_append_doc"></div>
+			<textarea class="form-control keyarea" id="modal_append_textarea" rows="2"></textarea>
+			<br>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-primary" onclick="okModalAppend()">提案</button>
+		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
+	</div><!-- /.modal-footer -->
+</div></div><!-- /.modal-content --><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- 投票モーダル -->
+<div class="modal fade" id="modal_vote" tabindex="-1" role="dialog">
+<div class="modal-dialog" role="document"><div class="modal-content">
+
+	<div class="modal-header">
+		<h5 class="modal-title">投票</h5>
+		<button type="button" class="close" data-dismiss="modal" aria-label="閉じる"><span aria-hidden="true">&times;</span></button>
+	</div>
+	<div class="modal-body">
+		<div>
+			<label><b>賛成アドレス</b><br></label>
+			<div id="modal_vote_agree"></div>
+			<br>
+			<label><b>反対アドレス</b><br></label>
+			<div id="modal_vote_disagree"></div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree')">賛成</button>
+		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree')">反対</button>
+		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
+	</div><!-- /.modal-footer -->
+</div></div><!-- /.modal-content --><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- 議決モーダル -->
+<div class="modal fade" id="modal_decision" tabindex="-1" role="dialog">
+<div class="modal-dialog" role="document"><div class="modal-content">
+
+	<div class="modal-header">
+		<h5 class="modal-title">議決</h5>
+		<button type="button" class="close" data-dismiss="modal" aria-label="閉じる"><span aria-hidden="true">&times;</span></button>
+	</div>
+	<div class="modal-body">
+		<div>
+
+			<label><b>提案アドレス</b><br></label>
+			<div id="modal_decision_address"></div>
+			<br>
+			<label><b>対象ハッシュ</b><br></label>
+			<textarea  class="form-control keyarea" id="modal_decision_hash" rows="2"></textarea>
+
+
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-primary" onclick="okModalDecision()">議決</button>
+		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
+	</div><!-- /.modal-footer -->
+</div></div><!-- /.modal-content --><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+//TA6EAATQMNJM4QV4ARM3DVWGSZULWBDB7HGEVPY
+//C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C
+const alice = sym.Account.createFromPrivateKey("C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C",networkType);
+
+const CONFIRMED_TOKEN_ID = "193732F8B74E36EF"; //票決トークン
+const VOTE_TOKEN_ID = "47E966473AECCC36"; //投票トークン
+const INIT_DOCUMENT_ID = "338DCC41E690DB6A7932393B32149872D534603A9D49CD6E4F64111E98BAF21B"; //初期ドキュメント
+
+const sym = require("/node_modules/symbol-sdk");
+const qr  = require("/node_modules/symbol-qr-library");
+const history = document.getElementById("history");
+
+const CONFIG_SYMBOL_APPLICATION = {
+	nodes:TEST_NODES,       //ノードリスト config.js内に記載
+	selectNodeCount:3,      //同期確認のために接続するノード数
+	timeout:1800,           //ノード接続待機時間 ミリ秒
+	heightDiffThreshold: 1, // 同期判断ブロック高差
+	retryCount:30,          //最大再接続回数
+	mainnet:"MAIN_NET",
+	testnet:"TEST_NET"
+};
+
+let currentDocument = "null document";
+let currentAddress;
+let txMetaHash;
+let networkType;
+let generationHash;
+let epochAdjustment;
+let nodeUrl;
+let confirmId;
+let transactionId;
+let voteId;
+
+startSymbolApplication(
+
+	CONFIG_SYMBOL_APPLICATION,
+	
+	//onReady
+	async function(node){
+		console.log("select : " + node.url);
+		$.toast({heading: 'Select Node',text: node.url,showHideTransition: 'plain',icon: 'info',});
+		nodeUrl = node.url;
+		networkType = sym.NetworkType[CONFIG_SYMBOL_APPLICATION[node.network.identifier]];
+		generationHash = node.network.generationHashSeed;
+		epochAdjustment = node.network.epochAdjustment.slice(0,-1);
+
+		//ディープリンク
+		const params = new URLSearchParams(document.location.search.substring(1));
+		const reset = params.get("reset");
+		confirmId = getParams(params,"confirm_id",CONFIRMED_TOKEN_ID);
+		transactionId = getParams(params,"tx_id",INIT_DOCUMENT_ID);
+		voteId = getParams(params,"vote_id",VOTE_TOKEN_ID);
+
+		networkType = sym.NetworkType[CONFIG_SYMBOL_APPLICATION[node.network.identifier]];
+		res = await nodeFetch(node.url + `/transactions/confirmed/${transactionId}` )
+		const tx = JSON.parse(res);
+		const message = sym.Convert.uint8ToUtf8(sym.Convert.hexToUint8(tx.transaction.message).slice(1))
+
+		var generatedDocument = await ejs.render(message, data,{ async: true });
+		const olElement = document.getElementById('output');
+
+		olElement.innerHTML = decodeHTMLEntities(generatedDocument);
+		setSocket(currentWebsocket);
+	},
+
+	// onStatusChange 状態変更通知
+	async function(event){
+		console.log(event.name + " : " + event.error + " : " + event.targetNode);
+	},
+
+	// onPhysicalMessage QR受信時
+	async function(event){
+
+		console.log(event);
+		$.toast({heading: 'Scan',text:event ,showHideTransition: 'plain',icon: 'info',});
+		$('#modal_qr_scan').modal('hide');
+	},
+
+	async function(event     ){
+		console.log(event);
+	},	//onSocketMessage ソケット受信時
+	async function(nodeSocket){
+
+		setSocket(currentWebsocket);
+
+	},	//onSocketResumed ソケット接続回復時
+	async function(){/* onVisible 画面フォーカス回復時     */}
+);
+
+function getParams(params,key,defaultValue){
+	let item = params.get(key);
+	if(item === null ){
+		item = defaultValue;
+	}
+	return item;
+}
+
+function setSocket(nodeSocket){
+	socketSend(nodeSocket,'block');
+}
+
+// EJSで生成されたHTML
+function decodeHTMLEntities(html) {
+	const textarea = document.createElement("textarea");
+	textarea.innerHTML = html;
+	return textarea.value;
+}
+
+function addHistory(item,isIndent) {
+	// 新しい <li> 要素を作成
+	var newItem = document.createElement("li");
+//	var textNode = document.createTextNode(item);
+
+	newItem.innerHTML = item;
+//	newItem.appendChild(textNode);
+
+	if(isIndent){
+		newItem.classList.add("indented");
+	}
+	// <ul> 要素を取得し、新しい <li> 要素を追加
+	var list = document.getElementById("history");
+	list.appendChild(newItem);
+}
+
+async function getCurrentDocument(doc,mosaicId,agree,disagree){
+
+	//nextが無効なので現在のdocを調べる
+	let resDoc;
+
+	//賛成票のカウント
+	let agreeAmount = 0;
+	try{
+		const resAgree = await nodeFetch(nodeUrl + `/accounts/${agree}`);
+		agreeAmount = JSON.parse(resAgree).account.mosaics.filter(mosaic=>mosaic.id === mosaicId)[0].amount;
+	}catch{}
+
+	//反対票のカウント
+	let disAgreeAmount = 0;
+	try{
+
+		const resDisAgree = await nodeFetch(nodeUrl + `/accounts/${disagree}`);
+		disAgreeAmount = JSON.parse(resDisAgree).account.mosaics.filter(mosaic=>mosaic.id === mosaicId)[0].amount;
+	}catch{}
+
+	if(agreeAmount > disAgreeAmount){
+
+		//可決
+		resDoc = doc;
+		addHistory(`議決：賛成:${agreeAmount},反対:${disAgreeAmount}→⭕可決`);
+
+	}else{
+
+		//否決、あるいは同数票
+		resDoc = currentDocument;
+		addHistory(`議決：賛成:${agreeAmount},反対:${disAgreeAmount}→❌否決`);
+	}
+	return resDoc;
+}
+
+function putTransaction(rawAddress,mosaics,message){
+
+	const address = sym.Address.createFromRawAddress(rawAddress);
+	
+	tx3 = sym.TransferTransaction.create(
+		sym.Deadline.create(epochAdjustment),
+		address,
+		mosaics,
+		message,
+		networkType
+	).setMaxFee(100);
+	signedTx3 = alice.sign(tx3,generationHash);
+
+	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
+	socketSend(currentWebsocket,'status/'   + address.plain());
+	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
+	socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
+}
+
+const data2 = {
+
+	update : async function(next,doc,mosaicId,agree,disagree){
+		addHistory(`📣修正提案があります <button onclick='showModalDecision("${currentAddress}","${txMetaHash}")'>議決</button>`,true);
+		addHistory(doc,true);
+//		addHistory(`<button onclick='vote("${agree}")'>賛成</button> ` + agree,true);
+//		addHistory(`<button onclick='vote("${disagree}")'>反対</button> ` + disagree,true);
+		addHistory(`<button onclick='showModalVote("${agree}","${disagree}")'>投票</button> ` + agree,true);
+	},
+	append : async function(next){
+	}
+};
+
+const data = {
+
+	update : async function(next,doc,mosaicId,agree,disagree){
+
+		addHistory("🔎検証: " + doc);
+		await checkVoting(next);
+		currentDocument = await getCurrentDocument(doc,mosaicId,agree,disagree);
+
+		let confirmedHash;
+		try{
+
+			confirmedHash = await getConfirmedHash(next);
+			if(confirmedHash === false){
+				return false;
+			}
+		}catch(error){
+
+			//次期修正提案に承認済みトークン無しのため、現状採択されているドキュメントの表示
+//			v23までここにあった
+//			currentDocument = await getCurrentDocument(doc,mosaicId,agree,disagree);
+			return getUpdateDocument(next);
+		}
+
+		let message = await getMessage(confirmedHash);
+		if(!message){
+			return false;
+		}
+
+		//現状の採択ドキュメントを把握 v23までここにあった
+//		currentDocument = await getCurrentDocument(doc,mosaicId,agree,disagree);
+
+		//次期修正提案が承認されている
+		try{
+
+			//次期修正提案ドキュメントが可決で承認されている。
+			const renderedMessage = await ejs.render(message ,data,{ async: true });
+			return decodeHTMLEntities("<div class='chapter'>" + renderedMessage + "</div>") ;
+			
+		}catch(error){
+
+			//次期修正提案ドキュメントが否決で承認されている。
+			return getUpdateDocument(next);
+		}
+	},
+	append : async function(next){
+
+		addHistory("🔎追記検証: " + next);
+		checkVoting(next);
+
+		let confirmedHash;
+		try{
+			confirmedHash = await getConfirmedHash(next);
+			if(confirmedHash === false){
+				return false;
+			}
+
+		}catch(error){
+			//票決トークンがまだ投げられていない状態、あるいは投げられたトランザクションに提案ドキュメントのハッシュ値が指定されいていない場合。
+			return getAppendDocument(next);
+		}
+
+		let message = await getMessage(confirmedHash);
+		if(!message){
+			return false;
+		}
+
+		try{
+			//否決、無効時ドキュメント
+			currentDocument = "[不採択追記ドキュメント]";
+			const renderedMessage = await ejs.render(message ,data,{ async: true });
+			return decodeHTMLEntities(renderedMessage) ;
+			
+		}catch(error){
+
+			//追記提案はまだ採択されていない状態
+			return getAppendDocument(next);
+		}
+	}
+};
+
+//投票受付中の提案が存在するかチェック
+async function checkVoting(next){
+
+	try{
+		//承認トークンが投げられていないアカウントのみ取得
+		const resAgree = await nodeFetch(nodeUrl + `/accounts/${next}`);
+
+		let confirmedAmount;
+		if(JSON.parse(resAgree).account.mosaics.length === 0){
+			confirmedAmount = 0;
+		}else{
+		
+			confirmedAmount = JSON.parse(resAgree).account.mosaics.filter(mosaic=>mosaic.id === confirmId)[0].amount;
+		}
+
+		if(confirmedAmount <= 0){
+			//承認トークンと共に記された承認済みトランザクションを取得
+			const resTx = await nodeFetch(nodeUrl + `/transactions/confirmed?order=desc&recipientAddress=${next}`)
+			txes = JSON.parse(resTx).data;
+			
+			for(const tx of txes){
+
+				try{
+					const msg = sym.Convert.uint8ToUtf8(sym.Convert.hexToUint8(tx.transaction.message).slice(1)).trim();
+					currentAddress = next;
+					txMetaHash = tx.meta.hash;
+					const renderedMessage = await ejs.render(msg ,data2,{ async: true });
+				}catch{}
+			}
+		}
+	}catch(error){}
+}
+
+async function getConfirmedHash(next){
+
+	try{
+		//承認トークンと共に記された承認済みトランザクションを取得
+		const resFinalizedTx = await nodeFetch(nodeUrl + `/transactions/confirmed?transferMosaicId=${confirmId}&order=desc&recipientAddress=${next}`)
+		const finalizedTx = JSON.parse(resFinalizedTx).data[0];
+		if(finalizedTx.transaction.message === undefined){
+			addHistory("⚠【フォーマットエラー】:承認トークンにメッセージが添付されていません");
+			return false;
+		}
+
+		confirmedHash = sym.Convert.uint8ToUtf8(sym.Convert.hexToUint8(finalizedTx.transaction.message).slice(1)).trim();
+
+		if(confirmedHash.length !== 64){
+			addHistory("⚠【フォーマットエラー】:承認トークンに添付されたメッセージが不正です");
+			return false;
+		}
+	}catch(error){
+		//次期修正候補にトークンが投げられていないだけで、エラーではない。上記return falseとは区別すること。
+		throw error;
+	}
+	return confirmedHash;
+}
+
+async function getMessage(confirmedHash){
+
+	try{
+
+		//承認済みトランザクションで提案されたドキュメントを取得
+		const resConfirmedTx = await nodeFetch(nodeUrl + "/transactions/confirmed/" + confirmedHash );
+		const confirmedTx = JSON.parse(resConfirmedTx);
+		message = sym.Convert.uint8ToUtf8(sym.Convert.hexToUint8(confirmedTx.transaction.message).slice(1))
+
+	}catch(error){
+
+		addHistory("⚠【フォーマットエラー】:承認トークンの指定したドキュメントが見つかりません");
+		return false;
+	}
+	return message;
+}
+
+function getUpdateDocument(next){
+	addHistory("<b>採択</b>: " + currentDocument);
+	return `<div class='chapter'>${currentDocument}<br><button onclick='showModalUpdate("${next}","${currentDocument}")'>↑ 修正提案</button> ${next}</div>`;
+}
+
+function getAppendDocument(next){
+	return `<br><button onclick='showModalAppend("${next}")'>● 追記提案</button> ${next}`;
+}
+
+
+function buildDocument(textarea){
+
+	const docTextarea = document.getElementById(textarea);
+	const updateAccount = sym.Account.generateNewAccount(networkType);
+	const agreeAccount = sym.Account.generateNewAccount(networkType);
+	const disagreeAccount = sym.Account.generateNewAccount(networkType);
+	const appendAccount = sym.Account.generateNewAccount(networkType);
+
+const proposalDocument = `
+<%= await update(
+	"${updateAccount.address.plain()}",
+	"${docTextarea.value}",
+	"${voteId}",
+	"${agreeAccount.address.plain()}",
+	"${disagreeAccount.address.plain()}"
+) %>
+<%= await append("${appendAccount.address.plain()}") %>
+`;//`
+
+	return proposalDocument;
+}
+/*
+$('#modal_qr_scan').on('hide.bs.modal', function (e) {
+	stopVideo();		
+	clearRect();
+});
+*/
+
+function okModalUpdate(){
+
+	const nextAddress = document.getElementById("modal_update_next");
+	const updateDocument = buildDocument("modal_update_textarea");
+	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(updateDocument));
+	$("#modal_update").modal("hide");
+}
+
+function okModalAppend(){
+
+	const nextAddress = document.getElementById("modal_append_next");
+	const appendDocument = buildDocument("modal_append_textarea");
+	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(appendDocument));
+	$("#modal_append").modal("hide");
+}
+
+function showModalUpdate(next,updateDoc){
+	const textarea = document.getElementById("modal_update_doc");
+	textarea.textContent = updateDoc;
+
+	const nextAddress = document.getElementById("modal_update_next");
+	nextAddress.textContent = next;
+	$("#modal_update").modal("show");
+}
+
+function showModalAppend(next,appendDoc){
+
+	const nextAddress = document.getElementById("modal_append_next");
+	nextAddress.textContent = next;
+	$("#modal_append").modal("show");
+}
+
+function showModalVote(agree,disagree){
+
+	document.getElementById("modal_vote_agree").textContent = agree;
+	document.getElementById("modal_vote_disagree").textContent = disagree;
+
+
+	$("#modal_vote").modal("show");
+}
+
+function showModalDecision(address,hash){
+
+	document.getElementById("modal_decision_address").textContent = address;
+	document.getElementById("modal_decision_hash").textContent = hash;
+
+	$("#modal_decision").modal("show");
+}
+
+function okModalvote(id){
+
+	const address = document.getElementById(id).textContent ;
+	putTransaction(
+		address,
+		[new sym.Mosaic(new sym.MosaicId(voteId), sym.UInt64.fromUint(1))],
+		sym.EmptyMessage
+	);
+
+	$("#modal_vote").modal("hide");
+
+}
+
+function okModalDecision(){
+
+	const address = document.getElementById("modal_decision_address").textContent ;
+	const hash = document.getElementById("modal_decision_hash").textContent ;
+	putTransaction(
+		address,
+		[new sym.Mosaic(new sym.MosaicId(confirmId), sym.UInt64.fromUint(1))],
+		sym.PlainMessage.create(hash)
+	);
+	$("#modal_decision").modal("hide");
+
+}
+
+</script>
+</body>
+</html>
