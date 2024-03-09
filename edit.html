@@ -232,7 +232,7 @@ startSymbolApplication(
 
 		const qrcode = new QRCode(document.getElementById('qrcode'), {
 			text: location.href,
-			width: 128, height: 128
+			width: 256, height: 256
 		});
 
 
@@ -344,6 +344,9 @@ function putTransaction(rawAddress,mosaics,message){
 		networkType
 	).setMaxFee(100);
 
+	const payload = tx3.serialize();
+	location.href = `alice://sign?data=${payload}&type=request_sign_transaction&node=${Convert.utf8ToHex(nodeUrl)}&method=announce&deadline=3600`;
+/*
 	window.SSS.setTransaction(tx3);
 	window.SSS.requestSign().then((signedTx3) => {
 		// announce
@@ -352,7 +355,7 @@ function putTransaction(rawAddress,mosaics,message){
 		socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
 		socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
 	})
-
+*/
 //	signedTx3 = alice.sign(tx3,generationHash);
 
 
