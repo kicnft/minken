@@ -217,7 +217,7 @@ updateDocument = `
 
 		addHistory("アドレス：" + address.plain());
 		addHistory("ハッシュ：" + signedTx.hash);
-		addHistory(`<a href='index23.html?confirm_id=${confirmId}&tx_id=${signedTx.hash}'>憲章エクスプローラー</a>`);
+		addHistory(`<a href='edit.html?confirm_id=${confirmId}&tx_id=${signedTx.hash}'>憲章エクスプローラー</a>`);
 
 	},
 
@@ -239,9 +239,6 @@ updateDocument = `
 	async function(nodeSocket){},	//onSocketResumed ソケット接続回復時
 	async function(){/* onVisible 画面フォーカス回復時     */}
 );
-
-
-
 
 </script>
 </body>
