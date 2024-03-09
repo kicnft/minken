@@ -345,7 +345,7 @@ function putTransaction(rawAddress,mosaics,message){
 	).setMaxFee(100);
 
 	const payload = tx3.serialize();
-	location.href = `alice://sign?data=${payload}&type=request_sign_transaction&node=${Convert.utf8ToHex(nodeUrl)}&method=announce&deadline=3600`;
+	location.href = `alice://sign?data=${payload}&type=request_sign_transaction&node=${sym.Convert.utf8ToHex(nodeUrl)}&method=announce&deadline=3600`;
 /*
 	window.SSS.setTransaction(tx3);
 	window.SSS.requestSign().then((signedTx3) => {
