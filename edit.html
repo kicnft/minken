@@ -169,7 +169,8 @@ const history = document.getElementById("history");
 
 //TA6EAATQMNJM4QV4ARM3DVWGSZULWBDB7HGEVPY
 //C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C
-const alice = sym.Account.createFromPrivateKey("C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C",networkType);
+const aliceKey = "C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C";
+let alice;
 
 const CONFIG_SYMBOL_APPLICATION = {
 	nodes:TEST_NODES,       //ノードリスト config.js内に記載
@@ -213,6 +214,7 @@ startSymbolApplication(
 		voteId = getParams(params,"vote_id",VOTE_TOKEN_ID);
 
 		networkType = sym.NetworkType[CONFIG_SYMBOL_APPLICATION[node.network.identifier]];
+		alice = sym.Account.createFromPrivateKey(aliceKey,networkType);
 		res = await nodeFetch(node.url + `/transactions/confirmed/${transactionId}` )
 		const tx = JSON.parse(res);
 		const message = sym.Convert.uint8ToUtf8(sym.Convert.hexToUint8(tx.transaction.message).slice(1))
