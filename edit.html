@@ -13,6 +13,7 @@
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
 	<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+	<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 
 	<script src="https://xembook.github.io/nem2-browserify/symbol-sdk-pack-2.0.4.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ejs/ejs.min.js"></script>
@@ -50,6 +51,9 @@
 <hr>
 <h4>履歴</h4>
 <ul id="history"></ul>
+<hr>
+<h4>QR</h4>
+<div id="qrcode"></div>
 </div>
 
 <!-- 修正提案選択モーダル -->
@@ -224,6 +228,14 @@ startSymbolApplication(
 
 		olElement.innerHTML = decodeHTMLEntities(generatedDocument);
 		setSocket(currentWebsocket);
+
+
+		const qrcode = new QRCode(document.getElementById('qrcode'), {
+			text: location.href,
+			width: 128, height: 128
+		});
+
+
 	},
 
 	// onStatusChange 状態変更通知
@@ -353,7 +365,7 @@ const data2 = {
 		addHistory(doc,true);
 //		addHistory(`<button onclick='vote("${agree}")'>賛成</button> ` + agree,true);
 //		addHistory(`<button onclick='vote("${disagree}")'>反対</button> ` + disagree,true);
-		addHistory(`<button onclick='showModalVote("${agree}","${disagree}")'>投票</button> ` + agree,true);
+		addHistory(`<button onclick='showModalVote("${agree}","${disagree}")'>投票</button>`,true);
 	},
 	append : async function(next){
 	}
