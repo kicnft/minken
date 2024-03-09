@@ -331,12 +331,19 @@ function putTransaction(rawAddress,mosaics,message){
 		message,
 		networkType
 	).setMaxFee(100);
-	signedTx3 = alice.sign(tx3,generationHash);
 
-	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
-	socketSend(currentWebsocket,'status/'   + address.plain());
-	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
-	socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
+	window.SSS.setTransaction(tx3);
+	window.SSS.requestSign().then((signedTx3) => {
+		// announce
+		nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
+		socketSend(currentWebsocket,'status/'   + address.plain());
+		socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
+		socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
+	})
+
+//	signedTx3 = alice.sign(tx3,generationHash);
+
+
 }
 
 const data2 = {
