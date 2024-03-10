@@ -78,7 +78,8 @@
 		</div>
 	</div>
 	<div class="modal-footer">
-		<button type="button" class="btn btn-primary" onclick="okModalUpdate()">提案</button>
+		<button type="button" class="btn btn-primary" onclick="okModalUpdate('sss')">SSSで提案</button>
+		<button type="button" class="btn btn-primary" onclick="okModalUpdate('alice')">aLiceで提案</button>
 		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
 	</div><!-- /.modal-footer -->
 </div></div><!-- /.modal-content --><!-- /.modal-dialog -->
@@ -128,8 +129,10 @@
 		</div>
 	</div>
 	<div class="modal-footer">
-		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree')">賛成</button>
-		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree')">反対</button>
+		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','sss')">SSSで賛成</button>
+		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','alice')">aLiceで賛成</button>
+		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','sss')">SSSで反対</button>
+		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','alice')">aLice反対</button>
 		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
 	</div><!-- /.modal-footer -->
 </div></div><!-- /.modal-content --><!-- /.modal-dialog -->
@@ -156,7 +159,7 @@
 		</div>
 	</div>
 	<div class="modal-footer">
-		<button type="button" class="btn btn-primary" onclick="okModalDecision()">議決</button>
+		<button type="button" class="btn btn-primary" onclick="okModalDecision('callbackSSS')">SSSで議決</button>
 		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
 	</div><!-- /.modal-footer -->
 </div></div><!-- /.modal-content --><!-- /.modal-dialog -->
@@ -332,7 +335,7 @@ async function getCurrentDocument(doc,mosaicId,agree,disagree){
 	return resDoc;
 }
 
-function putTransaction(rawAddress,mosaics,message){
+function putTransaction(rawAddress,mosaics,message,callback){
 
 	const address = sym.Address.createFromRawAddress(rawAddress);
 	
@@ -344,9 +347,11 @@ function putTransaction(rawAddress,mosaics,message){
 		networkType
 	).setMaxFee(100);
 
+	callback(tx3);
+/*
 	const payload = tx3.serialize();
 	location.href = `alice://sign?data=${payload}&type=request_sign_transaction&node=${sym.Convert.utf8ToHex(nodeUrl)}&method=announce&deadline=3600`;
-/*
+
 	window.SSS.setTransaction(tx3);
 	window.SSS.requestSign().then((signedTx3) => {
 		// announce
@@ -357,14 +362,42 @@ function putTransaction(rawAddress,mosaics,message){
 	})
 */
 //	signedTx3 = alice.sign(tx3,generationHash);
+}
 
+const callbackSSS = function(tx3){
+	window.SSS.setTransaction(tx3);
+	window.SSS.requestSign().then((signedTx3) => {
+		// announce
+		nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
+		socketSend(currentWebsocket,'status/'   + address.plain());
+		socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
+		socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
+	});
 
+}
+
+const callbackAlice = function(tx3){
+
+	const payload = tx3.serialize();
+	location.href = `alice://sign?data=${payload}&type=request_sign_transaction&node=${sym.Convert.utf8ToHex(nodeUrl)}&method=announce&deadline=3600`;
+	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
+	socketSend(currentWebsocket,'status/'   + address.plain());
+	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
+	socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
+}
+
+const callbackSelf = function(tx3){
+	signedTx3 = alice.sign(tx3,generationHash);
+	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
+	socketSend(currentWebsocket,'status/'   + address.plain());
+	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
+	socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
 }
 
 const data2 = {
 
 	update : async function(next,doc,mosaicId,agree,disagree){
-		addHistory(`📣修正提案があります <button onclick='showModalDecision("${currentAddress}","${txMetaHash}")'>議決</button>`,true);
+		addHistory(`📣改善提案があります <button onclick='showModalDecision("${currentAddress}","${txMetaHash}")'>議決</button>`,true);
 		addHistory(doc,true);
 //		addHistory(`<button onclick='vote("${agree}")'>賛成</button> ` + agree,true);
 //		addHistory(`<button onclick='vote("${disagree}")'>反対</button> ` + disagree,true);
@@ -566,11 +599,22 @@ $('#modal_qr_scan').on('hide.bs.modal', function (e) {
 });
 */
 
-function okModalUpdate(){
+function okModalUpdate(walletType){
 
 	const nextAddress = document.getElementById("modal_update_next");
 	const updateDocument = buildDocument("modal_update_textarea");
-	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(updateDocument));
+	let callback;
+	if(walletType === 'sss'){
+		callback = callbackSSS;
+	}else if(walletType === 'alice'){
+
+		callback = callbackAlice;
+	}else{
+
+		callback = callbackSelf;
+	}
+
+	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(updateDocument),callback);
 	$("#modal_update").modal("hide");
 }
 
@@ -615,13 +659,24 @@ function showModalDecision(address,hash){
 	$("#modal_decision").modal("show");
 }
 
-function okModalvote(id){
+function okModalvote(id,walletType){
 
 	const address = document.getElementById(id).textContent ;
+	let callback;
+	if(walletType === 'sss'){
+		callback = callbackSSS;
+	}else if(walletType === 'alice'){
+
+		callback = callbackAlice;
+	}else{
+
+		callback = callbackSelf;
+	}
 	putTransaction(
 		address,
 		[new sym.Mosaic(new sym.MosaicId(voteId), sym.UInt64.fromUint(1))],
-		sym.EmptyMessage
+		sym.EmptyMessage,
+		callback
 	);
 
 	$("#modal_vote").modal("hide");
