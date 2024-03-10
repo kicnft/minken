@@ -105,7 +105,8 @@
 		</div>
 	</div>
 	<div class="modal-footer">
-		<button type="button" class="btn btn-primary" onclick="okModalAppend()">提案</button>
+		<button type="button" class="btn btn-primary" onclick="okModalAppend('sss')">SSSで提案</button>
+		<button type="button" class="btn btn-primary" onclick="okModalAppend('alice')">aLiceで提案</button>
 		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
 	</div><!-- /.modal-footer -->
 </div></div><!-- /.modal-content --><!-- /.modal-dialog -->
@@ -132,7 +133,7 @@
 		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','sss')">SSSで賛成</button>
 		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','alice')">aLiceで賛成</button>
 		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','sss')">SSSで反対</button>
-		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','alice')">aLice反対</button>
+		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','alice')">aLiceで反対</button>
 		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
 	</div><!-- /.modal-footer -->
 </div></div><!-- /.modal-content --><!-- /.modal-dialog -->
@@ -159,7 +160,8 @@
 		</div>
 	</div>
 	<div class="modal-footer">
-		<button type="button" class="btn btn-primary" onclick="okModalDecision('callbackSSS')">SSSで議決</button>
+		<button type="button" class="btn btn-primary" onclick="okModalDecision('sss')">SSSで議決</button>
+		<button type="button" class="btn btn-primary" onclick="okModalDecision('alice')">aLiceで議決</button>
 		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
 	</div><!-- /.modal-footer -->
 </div></div><!-- /.modal-content --><!-- /.modal-dialog -->
@@ -610,7 +612,6 @@ function okModalUpdate(walletType){
 
 		callback = callbackAlice;
 	}else{
-
 		callback = callbackSelf;
 	}
 
@@ -618,11 +619,20 @@ function okModalUpdate(walletType){
 	$("#modal_update").modal("hide");
 }
 
-function okModalAppend(){
+function okModalAppend(walletType){
 
+	let callback;
+	if(walletType === 'sss'){
+		callback = callbackSSS;
+	}else if(walletType === 'alice'){
+
+		callback = callbackAlice;
+	}else{
+		callback = callbackSelf;
+	}
 	const nextAddress = document.getElementById("modal_append_next");
 	const appendDocument = buildDocument("modal_append_textarea");
-	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(appendDocument));
+	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(appendDocument),callback);
 	$("#modal_append").modal("hide");
 }
 
@@ -683,14 +693,25 @@ function okModalvote(id,walletType){
 
 }
 
-function okModalDecision(){
+function okModalDecision(walletType){
 
+	let callback;
+	if(walletType === 'sss'){
+		callback = callbackSSS;
+	}else if(walletType === 'alice'){
+
+		callback = callbackAlice;
+	}else{
+
+		callback = callbackSelf;
+	}
 	const address = document.getElementById("modal_decision_address").textContent ;
 	const hash = document.getElementById("modal_decision_hash").textContent ;
 	putTransaction(
 		address,
 		[new sym.Mosaic(new sym.MosaicId(confirmId), sym.UInt64.fromUint(1))],
-		sym.PlainMessage.create(hash)
+		sym.PlainMessage.create(hash),
+		callback
 	);
 	$("#modal_decision").modal("hide");
 
