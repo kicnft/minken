@@ -605,40 +605,6 @@ $('#modal_qr_scan').on('hide.bs.modal', function (e) {
 });
 */
 
-function okModalUpdate(walletType){
-
-	const nextAddress = document.getElementById("modal_update_next");
-	const updateDocument = buildDocument("modal_update_textarea");
-	let callback;
-	if(walletType === 'sss'){
-		callback = callbackSSS;
-	}else if(walletType === 'alice'){
-
-		callback = callbackAlice;
-	}else{
-		callback = callbackSelf;
-	}
-
-	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(updateDocument),callback);
-	$("#modal_update").modal("hide");
-}
-
-function okModalAppend(walletType){
-
-	let callback;
-	if(walletType === 'sss'){
-		callback = callbackSSS;
-	}else if(walletType === 'alice'){
-
-		callback = callbackAlice;
-	}else{
-		callback = callbackSelf;
-	}
-	const nextAddress = document.getElementById("modal_append_next");
-	const appendDocument = buildDocument("modal_append_textarea");
-	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(appendDocument),callback);
-	$("#modal_append").modal("hide");
-}
 
 function showModalUpdate(next,updateDoc){
 	const textarea = document.getElementById("modal_update_doc");
@@ -673,10 +639,9 @@ function showModalDecision(address,hash){
 	$("#modal_decision").modal("show");
 }
 
-function okModalvote(id,walletType){
+function getWalletCallback(walletType){
 
-	const address = document.getElementById(id).textContent ;
-	let callback;
+	let wallet;
 	if(walletType === 'sss'){
 		callback = callbackSSS;
 	}else if(walletType === 'alice'){
@@ -686,6 +651,12 @@ function okModalvote(id,walletType){
 
 		callback = callbackSelf;
 	}
+	return callback;
+}
+function okModalvote(id,walletType){
+
+	const address = document.getElementById(id).textContent ;
+	const callback = getWalletCallback(walletType);
 	putTransaction(
 		address,
 		[new sym.Mosaic(new sym.MosaicId(voteId), sym.UInt64.fromUint(1))],
@@ -699,16 +670,7 @@ function okModalvote(id,walletType){
 
 function okModalDecision(walletType){
 
-	let callback;
-	if(walletType === 'sss'){
-		callback = callbackSSS;
-	}else if(walletType === 'alice'){
-
-		callback = callbackAlice;
-	}else{
-
-		callback = callbackSelf;
-	}
+	const callback = getWalletCallback(walletType);
 	const address = document.getElementById("modal_decision_address").textContent ;
 	const hash = document.getElementById("modal_decision_hash").textContent ;
 	putTransaction(
@@ -720,6 +682,25 @@ function okModalDecision(walletType){
 	$("#modal_decision").modal("hide");
 
 }
+
+function okModalUpdate(walletType){
+
+const nextAddress = document.getElementById("modal_update_next");
+const updateDocument = buildDocument("modal_update_textarea");
+const callback = getWalletCallback(walletType);
+putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(updateDocument),callback);
+$("#modal_update").modal("hide");
+}
+
+function okModalAppend(walletType){
+
+const callback = getWalletCallback(walletType);
+const nextAddress = document.getElementById("modal_append_next");
+const appendDocument = buildDocument("modal_append_textarea");
+putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(appendDocument),callback);
+$("#modal_append").modal("hide");
+}
+
 
 </script>
 </body>
