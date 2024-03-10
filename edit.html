@@ -258,6 +258,10 @@ startSymbolApplication(
 
 	async function(event     ){
 		console.log(event);
+		if(event.topic.indexOf("confirmed") === 0){
+
+			alert("提案先アカウントの状態に更新がありました。リロードしてください。")
+		} 
 	},	//onSocketMessage ソケット受信時
 	async function(nodeSocket){
 
