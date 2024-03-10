@@ -354,6 +354,11 @@ function putTransaction(rawAddress,mosaics,message,callback){
 	).setMaxFee(100);
 
 	callback(tx3,address);
+	
+	socketSend(currentWebsocket,'status/'   + address.plain());
+	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
+	socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
+
 /*
 	const payload = tx3.serialize();
 	location.href = `alice://sign?data=${payload}&type=request_sign_transaction&node=${sym.Convert.utf8ToHex(nodeUrl)}&method=announce&deadline=3600`;
@@ -375,9 +380,6 @@ const callbackSSS = function(tx3,address){
 	window.SSS.requestSign().then((signedTx3) => {
 		// announce
 		nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
-		socketSend(currentWebsocket,'status/'   + address.plain());
-		socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
-		socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
 	});
 
 }
@@ -386,18 +388,12 @@ const callbackAlice = function(tx3,address){
 
 	const payload = tx3.serialize();
 	location.href = `alice://sign?data=${payload}&type=request_sign_transaction&node=${sym.Convert.utf8ToHex(nodeUrl)}&method=announce&deadline=3600`;
-	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
-	socketSend(currentWebsocket,'status/'   + address.plain());
-	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
-	socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
+//	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
 }
 
 const callbackSelf = function(tx3,address){
 	signedTx3 = alice.sign(tx3,generationHash);
 	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
-	socketSend(currentWebsocket,'status/'   + address.plain());
-	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
-	socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
 }
 
 const data2 = {
