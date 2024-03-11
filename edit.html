@@ -565,11 +565,11 @@ async function getMessage(confirmedHash){
 
 function getUpdateDocument(next){
 	addHistory("<b>採択</b>: " + currentDocument);
-	return `<div class='chapter'>${currentDocument}<br><button onclick='showModalUpdate("${next}","${currentDocument}")'>↑ 修正提案</button> ${next}</div>`;
+	return `<div class='chapter'>${currentDocument}<br><button onclick='showModalUpdate("${next}","${currentDocument}")'>↑ 修正提案</button></div>`;
 }
 
 function getAppendDocument(next){
-	return `<br><button onclick='showModalAppend("${next}")'>● 追記提案</button> ${next}`;
+	return `<br><button onclick='showModalAppend("${next}")'>● 追記提案 ${next}</button>`;
 }
 
 
