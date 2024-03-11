@@ -170,8 +170,8 @@
 </div><!-- /.modal -->
 
 <script>
-const CONFIRMED_TOKEN_ID = "193732F8B74E36EF"; //票決トークン
-const VOTE_TOKEN_ID = "47E966473AECCC36"; //投票トークン
+const CONFIRMED_TOKEN_ID = "54F9D50A6D73E426"; //票決トークン
+const VOTE_TOKEN_ID = "55CEF6ACA47C09BC"; //投票トークン
 const INIT_DOCUMENT_ID = "338DCC41E690DB6A7932393B32149872D534603A9D49CD6E4F64111E98BAF21B"; //初期ドキュメント
 
 const sym = require("/node_modules/symbol-sdk");
@@ -180,7 +180,7 @@ const history = document.getElementById("history");
 
 //TA6EAATQMNJM4QV4ARM3DVWGSZULWBDB7HGEVPY
 //C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C
-const aliceKey = "C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C";
+const aliceKey = "A4EC288C8566B8D3C2DC02712C66B368813959E02D619AB40A523066278D6506";
 let alice;
 
 const CONFIG_SYMBOL_APPLICATION = {
@@ -683,20 +683,20 @@ function okModalDecision(walletType){
 
 function okModalUpdate(walletType){
 
-const nextAddress = document.getElementById("modal_update_next");
-const updateDocument = buildDocument("modal_update_textarea");
-const callback = getWalletCallback(walletType);
-putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(updateDocument),callback);
-$("#modal_update").modal("hide");
+	const nextAddress = document.getElementById("modal_update_next");
+	const updateDocument = buildDocument("modal_update_textarea");
+	const callback = getWalletCallback(walletType);
+	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(updateDocument),callback);
+	$("#modal_update").modal("hide");
 }
 
 function okModalAppend(walletType){
 
-const callback = getWalletCallback(walletType);
-const nextAddress = document.getElementById("modal_append_next");
-const appendDocument = buildDocument("modal_append_textarea");
-putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(appendDocument),callback);
-$("#modal_append").modal("hide");
+	const callback = getWalletCallback(walletType);
+	const nextAddress = document.getElementById("modal_append_next");
+	const appendDocument = buildDocument("modal_append_textarea");
+	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(appendDocument),callback);
+	$("#modal_append").modal("hide");
 }
 
 

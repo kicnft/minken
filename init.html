@@ -22,7 +22,6 @@
     width:250px;
 }
 
-
 .div-list {
 	list-style-type: disc; /* リストアイテムのマーカーを設定 */
 	margin: 0; /* マージンをリセット */
@@ -40,9 +39,11 @@
 .indented {
     padding-left: 20px;
 }
+
+.address { font-size : 9pt ; }
+
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -50,26 +51,51 @@
 <div id="output" class="div-list"></div>
 <hr>
 <h4>初期ドキュメント作成ツール</h4>
-<ul id="history"></ul>
 
-	<!--h1>8_account.html</h1>
-	<button onclick="showModalQR()">スキャン</button>
-	<br>
-	<b>Address QR</b>
-	<div id="signer_address"></div>
-	<div id="signer_address_plain"></div>
-	<button onclick="showModalAuthForKey()">鍵情報</button-->
+<button onclick="showModalCreate('sss')">SSSで作成</button>
+<button onclick="showModalCreate('self')">Demo用作成</button>
+
+<ul id="history"></ul>
 </div>
 
+<!-- 新規作成設定モーダル -->
+<div class="modal fade" id="modal_create" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document"><div class="modal-content">
+	
+		<div class="modal-header">
+			<h5 class="modal-title">新規作成</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="閉じる"><span aria-hidden="true">&times;</span></button>
+		</div>
+		<div class="modal-body">
+	
+			<!-- テンプレート要素 -->
+			<div id="form_decision">
+				<label>議決モザイクID:</label>
+				<select></select><br>
+			</div>
+			<div id="form_vote">
+				<label>投票モザイクID:</label>
+				<select></select><br>
+			</div>
+
+		</div>
+		<div class="modal-footer">
+
+			<button type="button" class="btn btn-primary" onclick="okModalCreate()">
+				<span id="spinner_faucet" class="collapse spinner-border spinner-border-sm" role="status"></span>
+				作成
+			</button>
+			<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
+				
+		</div><!-- /.modal-footer -->
+	</div></div><!-- /.modal-content --><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	
 
 
 <script>
 const CONFIRMED_TOKEN_ID = "193732F8B74E36EF"; //票決トークン
 const VOTE_TOKEN_ID = "47E966473AECCC36";      //投票トークン
-const INIT_DOCUMENT_ID = "F42CB7AAD44A339765CCC4897175F2AEAD779942F8389F6EFB5E761185503DA9"; //初期ドキュメント
-const INIT_ADDRESS = "";
-
-
 
 function addHistory(item,isIndent) {
 	// 新しい <li> 要素を作成
@@ -104,6 +130,11 @@ let nodeUrl;
 const ITEM_NAME = "symbolseminar";
 const sym = require("/node_modules/symbol-sdk");
 const qr  = require("/node_modules/symbol-qr-library");
+
+//TA6EAATQMNJM4QV4ARM3DVWGSZULWBDB7HGEVPY
+//C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C
+const aliceKey = "A4EC288C8566B8D3C2DC02712C66B368813959E02D619AB40A523066278D6506";
+let alice;
 
 const history = document.getElementById("history");
 function addHistory(item,isIndent) {
@@ -146,7 +177,6 @@ startSymbolApplication(
 		epochAdjustment = node.network.epochAdjustment.slice(0,-1);
 		currencyMosaicId = node.network.currencyMosaicId.split("'").join("").slice(2);
 
-
 		//ディープリンク
 		const params = new URLSearchParams(document.location.search.substring(1));
 		let confirmId = params.get("confirm_id");
@@ -160,86 +190,151 @@ startSymbolApplication(
 		}
 
 		networkType = sym.NetworkType[CONFIG_SYMBOL_APPLICATION[node.network.identifier]];
-
-		alice = sym.Account.createFromPrivateKey("C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C",networkType);
-
-		address = sym.Account.generateNewAccount(networkType).address;
-		updateAccount = sym.Account.generateNewAccount(networkType);
-		agreeAccount = sym.Account.generateNewAccount(networkType);
-		disagreeAccount = sym.Account.generateNewAccount(networkType);
-		appendAccount = sym.Account.generateNewAccount(networkType);
-
-
-updateDocument = `
-<%= await update(
-	"${updateAccount.address.plain()}",
-	"[新規ドキュメント]",
-	"${voteId}",
-	"${agreeAccount.address.plain()}",
-	"${disagreeAccount.address.plain()}"
-) %>
-<%= await append("${appendAccount.address.plain()}") %>
-`;//`
-
-		console.log(updateDocument);
-	
-		tx = sym.TransferTransaction.create(
-			sym.Deadline.create(epochAdjustment),
-			address,[],
-			sym.PlainMessage.create(updateDocument),
-			networkType
-		).setMaxFee(100);
-		signedTx = alice.sign(tx,generationHash);
-
-		console.log(signedTx);
-
-		tx2 = sym.TransferTransaction.create(
-			sym.Deadline.create(epochAdjustment),
-			address,
-			[new sym.Mosaic(new sym.MosaicId(confirmId), sym.UInt64.fromUint(1))],
-			sym.PlainMessage.create(signedTx.hash),
-			networkType
-		).setMaxFee(100);
-		signedTx2 = alice.sign(tx2,generationHash);
-
-		tx3 = sym.TransferTransaction.create(
-			sym.Deadline.create(epochAdjustment),
-			agreeAccount.address,
-			[new sym.Mosaic(new sym.MosaicId(voteId), sym.UInt64.fromUint(1))],
-			sym.PlainMessage.create(signedTx.hash),
-			networkType
-		).setMaxFee(100);
-		signedTx3 = alice.sign(tx3,generationHash);
-
-		nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx.payload });
-		nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx2.payload});
-		nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload});
-
-		addHistory("アドレス：" + address.plain());
-		addHistory("ハッシュ：" + signedTx.hash);
-		addHistory(`<a href='edit.html?confirm_id=${confirmId}&tx_id=${signedTx.hash}'>憲章エクスプローラー</a>`);
-
 	},
 
 	// onStatusChange 状態変更通知
 	async function(event){
 		console.log(event.name + " : " + event.error + " : " + event.targetNode);
 	},
-
-	// onPhysicalMessage QR受信時
-	async function(event){
-
+	async function(event){},// onPhysicalMessage QR受信時
+	async function(event     ){
 		console.log(event);
-		$.toast({heading: 'Scan',text:event ,showHideTransition: 'plain',icon: 'info',});
+		if(event.topic.indexOf("confirmed") === 0){
+			$('#spinner_faucet').collapse('hide');
+			$("#modal_create").modal("hide");
+		} 
 
-		$('#modal_qr_scan').modal('hide');
-	},
-
-	async function(event     ){},	//onSocketMessage ソケット受信時
+	},	//onSocketMessage ソケット受信時
 	async function(nodeSocket){},	//onSocketResumed ソケット接続回復時
 	async function(){/* onVisible 画面フォーカス回復時     */}
 );
 
+async function showModalCreate(walletType){
+	await addMosaicForm(walletType);
+	$("#modal_create").modal("show");
+}
+
+async function addMosaicForm(walletType) {
+
+//	window.SSS.activeAddress;
+
+	
+	if(walletType === "sss"){
+		activeAddress = window.SSS.activeAddress;
+	}else{
+		alice = sym.Account.createFromPrivateKey(aliceKey,networkType);
+		activeAddress = alice.address.plain();
+	}
+
+	const formDecision = document.getElementById("form_decision");
+	const formVote = document.getElementById("form_vote");
+
+
+//	const resAccount = await nodeFetch(nodeUrl + `/accounts/${alice.address.plain()}`);
+	const resAccount = await nodeFetch(nodeUrl + `/accounts/${activeAddress}`);
+
+	const account = JSON.parse(resAccount).account;
+	const mosaics = account.mosaics;
+
+	appendMosaics(formDecision,mosaics);
+	appendMosaics(formVote,mosaics);
+	
+//	formContainer.appendChild(formDecision); // 新しいフォームを追加
+}
+
+function appendMosaics(elem,mosaics){
+	const selectElement = elem.querySelector("select");
+	while (selectElement.firstChild) {
+		selectElement.removeChild(selectElement.firstChild);
+	}
+
+	for(mosaic of mosaics){
+    	console.log(mosaic.id);
+		const optionElement = document.createElement("option");
+		optionElement.value = mosaic.id;
+		optionElement.textContent = mosaic.id;
+
+		selectElement.appendChild(optionElement);
+	}
+}
+
+function okModalCreate(){
+
+	confirmId = document.getElementById("form_decision");
+	voteId = document.getElementById("form_vote");
+	
+	alice = sym.Account.createFromPrivateKey(aliceKey,networkType);
+	address = sym.Account.generateNewAccount(networkType).address;
+	updateAccount = sym.Account.generateNewAccount(networkType);
+	agreeAccount = sym.Account.generateNewAccount(networkType);
+	disagreeAccount = sym.Account.generateNewAccount(networkType);
+	appendAccount = sym.Account.generateNewAccount(networkType);
+
+
+const updateDocument = `
+<%= await update(
+	"${updateAccount.address.plain()}",
+	"[新規ドキュメント]",
+	"${voteId.querySelector('select').value}",
+	"${agreeAccount.address.plain()}",
+	"${disagreeAccount.address.plain()}"
+) %>
+<%= await append("${appendAccount.address.plain()}") %>
+`;//`
+
+	console.log(updateDocument);
+
+	tx = sym.TransferTransaction.create(
+		sym.Deadline.create(epochAdjustment),
+		address,[],
+		sym.PlainMessage.create(updateDocument),
+		networkType
+	).setMaxFee(100);
+	signedTx = alice.sign(tx,generationHash);
+
+	console.log(signedTx);
+
+	tx2 = sym.TransferTransaction.create(
+		undefined,
+		address,
+		[new sym.Mosaic(new sym.MosaicId(confirmId.querySelector("select").value), sym.UInt64.fromUint(1))],
+		sym.PlainMessage.create(signedTx.hash),
+		networkType
+	);
+
+	tx3 = sym.TransferTransaction.create(
+		undefined,
+		agreeAccount.address,
+		[new sym.Mosaic(new sym.MosaicId(voteId.querySelector("select").value), sym.UInt64.fromUint(1))],
+		sym.EmptyMessage,
+		networkType
+	);
+
+	aggregateTx = sym.AggregateTransaction.createComplete(
+
+		sym.Deadline.create(epochAdjustment),
+		[
+			tx2.toAggregate(alice.publicAccount),
+			tx3.toAggregate(alice.publicAccount),        
+		],
+		networkType,
+		[],
+	).setMaxFeeForAggregate(100, 0);
+	signedTx2 = alice.sign(aggregateTx,generationHash);
+
+	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx.payload });
+	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx2.payload});
+
+	socketSend(currentWebsocket,'status/'   + address.plain());
+	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
+	socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
+
+	addHistory(`アドレス：<span class="address">${address.plain()}</span>` );
+	addHistory(`ハッシュ：<span class="address">${signedTx.hash}</span>` );
+	addHistory(`<a href='edit.html?confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>憲章エクスプローラー</a>`);
+	$('#spinner_faucet').collapse('show');
+//	$("#modal_create").modal("hide");
+}
 </script>
 </body>
 </html>
