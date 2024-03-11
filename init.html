@@ -80,7 +80,6 @@
 
 		</div>
 		<div class="modal-footer">
-
 			<button type="button" class="btn btn-primary" onclick="okModalCreate()">
 				<span id="spinner_faucet" class="collapse spinner-border spinner-border-sm" role="status"></span>
 				作成
@@ -124,7 +123,7 @@ let networkType;
 let currencyMosaicId;
 let generationHash;
 let epochAdjustment;
-
+let walletType;
 let nodeUrl;
 
 const ITEM_NAME = "symbolseminar";
@@ -209,16 +208,14 @@ startSymbolApplication(
 	async function(){/* onVisible 画面フォーカス回復時     */}
 );
 
-async function showModalCreate(walletType){
+async function showModalCreate(type){
+	walletType = type;
 	await addMosaicForm(walletType);
 	$("#modal_create").modal("show");
 }
 
-async function addMosaicForm(walletType) {
+async function addMosaicForm() {
 
-//	window.SSS.activeAddress;
-
-	
 	if(walletType === "sss"){
 		activeAddress = window.SSS.activeAddress;
 	}else{
@@ -260,10 +257,16 @@ function appendMosaics(elem,mosaics){
 
 function okModalCreate(){
 
+	if(walletType === "sss"){
+		activeAddress = window.SSS.activeAddress;
+	}else{
+		alice = sym.Account.createFromPrivateKey(aliceKey,networkType);
+		activeAddress = alice.address.plain();
+	}
+
 	confirmId = document.getElementById("form_decision");
 	voteId = document.getElementById("form_vote");
 	
-	alice = sym.Account.createFromPrivateKey(aliceKey,networkType);
 	address = sym.Account.generateNewAccount(networkType).address;
 	updateAccount = sym.Account.generateNewAccount(networkType);
 	agreeAccount = sym.Account.generateNewAccount(networkType);
@@ -290,9 +293,17 @@ const updateDocument = `
 		sym.PlainMessage.create(updateDocument),
 		networkType
 	).setMaxFee(100);
-	signedTx = alice.sign(tx,generationHash);
 
-	console.log(signedTx);
+	let signedTx;
+	if(walletType === 'sss'){
+		signedTx = announceBySSS(tx,address);
+	}else{
+
+		signedTx = announceBySelf(tx,address);
+	}
+
+//	signedTx = alice.sign(tx,generationHash);
+//	console.log(signedTx);
 
 	tx2 = sym.TransferTransaction.create(
 		undefined,
@@ -320,10 +331,19 @@ const updateDocument = `
 		networkType,
 		[],
 	).setMaxFeeForAggregate(100, 0);
-	signedTx2 = alice.sign(aggregateTx,generationHash);
 
+/*
+	signedTx2 = alice.sign(aggregateTx,generationHash);
 	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx.payload });
 	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx2.payload});
+*/
+	let signedTx2;
+	if(walletType === 'sss'){
+		signedTx2 = announceBySSS(aggregateTx,address);
+	}else{
+
+		signedTx2 = announceBySelf(aggregateTx,address);
+	}
 
 	socketSend(currentWebsocket,'status/'   + address.plain());
 	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
@@ -335,6 +355,22 @@ const updateDocument = `
 	$('#spinner_faucet').collapse('show');
 //	$("#modal_create").modal("hide");
 }
+
+const announceBySSS = async function(tx3,address){
+	window.SSS.setTransaction(tx3);
+	const signedTx3 = await window.SSS.requestSign();
+	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
+	return signedTx3;
+}
+
+
+
+const announceBySelf = function(tx3,address){
+	const signedTx3 = alice.sign(tx3,generationHash);
+	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
+	return signedTx3;
+}
+
 </script>
 </body>
 </html>
