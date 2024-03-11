@@ -42,6 +42,8 @@
 .indented {
     padding-left: 20px;
 }
+
+.address { font-size : 9pt ; }
 </style>
 </head>
 <body>
@@ -455,7 +457,7 @@ const data = {
 	},
 	append : async function(next){
 
-		addHistory("🔎追記検証: " + next);
+		addHistory(`🔎追記検証: <span class="address">${next}</span> `);
 		checkVoting(next);
 
 		let confirmedHash;
@@ -565,11 +567,11 @@ async function getMessage(confirmedHash){
 
 function getUpdateDocument(next){
 	addHistory("<b>採択</b>: " + currentDocument);
-	return `<div class='chapter'>${currentDocument}<br><button onclick='showModalUpdate("${next}","${currentDocument}")'>↑ 修正提案</button></div>`;
+	return `<div class='chapter'>${currentDocument}<br><button onclick='showModalUpdate("${next}","${currentDocument}")'>↑ 修正提案</button> <span class="address">${next}</span></div>`;
 }
 
 function getAppendDocument(next){
-	return `<br><button onclick='showModalAppend("${next}")'>● 追記提案 ${next}</button>`;
+	return `<br><button onclick='showModalAppend("${next}")'>● 追記提案</button> <span class="address">${next}</span>`;
 }
 
 
