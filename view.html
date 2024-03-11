@@ -125,8 +125,8 @@ async function getCurrentDocument(doc,mosaicId,agree,disagree){
 
 	//nextが無効なので現在のdocを調べる
 	let resDoc;
-	let agreeAmount = getAmount(agree);	//賛成票のカウント
-	let disAgreeAmount = getAmount(disagree);//反対票のカウント
+	let agreeAmount = await getAmount(agree);	//賛成票のカウント
+	let disAgreeAmount = await getAmount(disagree);//反対票のカウント
 	if(agreeAmount > disAgreeAmount){
 		resDoc = doc;//可決
 	}else{
