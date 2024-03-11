@@ -9,10 +9,8 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js" integrity="sha512-zlWWyZq71UMApAjih4WkaRpikgY9Bz1oXIW5G0fED4vk14JjGlQ1UmkGM392jEULP8jbNMiwLWdM8Z87Hu88Fw==" crossorigin="anonymous"></script>
 
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-	<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 	<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 
 	<script src="https://xembook.github.io/nem2-browserify/symbol-sdk-pack-2.0.4.js"></script>
@@ -22,14 +20,8 @@
 	<script src="js/symapp.js"></script>
 <style>
 .jq-toast-wrap {
-    width:250px;
+    width:300px;
 }
-
-.div-list {
-	list-style-type: disc; /* リストアイテムのマーカーを設定 */
-}
-
-
 
 </style>
 </head>
@@ -38,27 +30,15 @@
 <h1>みんなの憲章</h1>
 <div id="output" class="div-list"></div>
 <hr>
-<h4>履歴</h4>
-<ul id="history"></ul>
-<hr>
 <h4>QR</h4>
 <div id="qrcode"></div>
 </div>
-
-
 <script>
 const CONFIRMED_TOKEN_ID = "193732F8B74E36EF"; //票決トークン
 const VOTE_TOKEN_ID = "47E966473AECCC36"; //投票トークン
 const INIT_DOCUMENT_ID = "338DCC41E690DB6A7932393B32149872D534603A9D49CD6E4F64111E98BAF21B"; //初期ドキュメント
 
 const sym = require("/node_modules/symbol-sdk");
-const qr  = require("/node_modules/symbol-qr-library");
-const history = document.getElementById("history");
-
-//TA6EAATQMNJM4QV4ARM3DVWGSZULWBDB7HGEVPY
-//C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C
-const aliceKey = "C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C";
-let alice;
 
 const CONFIG_SYMBOL_APPLICATION = {
 	nodes:TEST_NODES,       //ノードリスト config.js内に記載
@@ -71,11 +51,6 @@ const CONFIG_SYMBOL_APPLICATION = {
 };
 
 let currentDocument = "null document";
-let currentAddress;
-let txMetaHash;
-let networkType;
-let generationHash;
-let epochAdjustment;
 let nodeUrl;
 let confirmId;
 let transactionId;
@@ -90,9 +65,6 @@ startSymbolApplication(
 		console.log("select : " + node.url);
 		$.toast({heading: 'Select Node',text: node.url,showHideTransition: 'plain',icon: 'info',});
 		nodeUrl = node.url;
-		networkType = sym.NetworkType[CONFIG_SYMBOL_APPLICATION[node.network.identifier]];
-		generationHash = node.network.generationHashSeed;
-		epochAdjustment = node.network.epochAdjustment.slice(0,-1);
 
 		//ディープリンク
 		const params = new URLSearchParams(document.location.search.substring(1));
@@ -101,50 +73,27 @@ startSymbolApplication(
 		transactionId = getParams(params,"tx_id",INIT_DOCUMENT_ID);
 		voteId = getParams(params,"vote_id",VOTE_TOKEN_ID);
 
-		networkType = sym.NetworkType[CONFIG_SYMBOL_APPLICATION[node.network.identifier]];
-		alice = sym.Account.createFromPrivateKey(aliceKey,networkType);
-		res = await nodeFetch(node.url + `/transactions/confirmed/${transactionId}` )
+		//メッセージ取得
+		res = await nodeFetch(node.url + `/transactions/confirmed/${transactionId}` );
 		const tx = JSON.parse(res);
-		const message = sym.Convert.uint8ToUtf8(sym.Convert.hexToUint8(tx.transaction.message).slice(1))
-
+		const message = sym.Convert.uint8ToUtf8(sym.Convert.hexToUint8(tx.transaction.message).slice(1));
 		var generatedDocument = await ejs.render(message, data,{ async: true });
 		const olElement = document.getElementById('output');
-
 		olElement.innerHTML = decodeHTMLEntities(generatedDocument);
-		setSocket(currentWebsocket);
 
+		//QRコード
 		const qrcode = new QRCode(document.getElementById('qrcode'), {
 			text: location.href,
 			width: 256, height: 256
 		});
 	},
 
-	// onStatusChange 状態変更通知
-	async function(event){
-		console.log(event.name + " : " + event.error + " : " + event.targetNode);
-	},
-
-	// onPhysicalMessage QR受信時
-	async function(event){
-
-		console.log(event);
-		$.toast({heading: 'Scan',text:event ,showHideTransition: 'plain',icon: 'info',});
-		$('#modal_qr_scan').modal('hide');
-	},
-
-	async function(event     ){
-		console.log(event);
-		if(event.topic.indexOf("confirmed") === 0){
-
-			alert("提案先アカウントの状態に更新がありました。リロードしてください。")
-		} 
-	},	//onSocketMessage ソケット受信時
-	async function(nodeSocket){
-
-		setSocket(currentWebsocket);
-
-	},	//onSocketResumed ソケット接続回復時
-	async function(){/* onVisible 画面フォーカス回復時     */}
+	//未使用
+	async function(event){},	// onStatusChange 状態変更通知
+	async function(event){},	// onPhysicalMessage QR受信時
+	async function(event){},	//onSocketMessage ソケット受信時
+	async function(nodeSocket){},	//onSocketResumed ソケット接続回復時
+	async function(){} 			//onVisible 画面フォーカス回復時
 );
 
 function getParams(params,key,defaultValue){
@@ -155,10 +104,6 @@ function getParams(params,key,defaultValue){
 	return item;
 }
 
-function setSocket(nodeSocket){
-	socketSend(nodeSocket,'block');
-}
-
 // EJSで生成されたHTML
 function decodeHTMLEntities(html) {
 	const textarea = document.createElement("textarea");
@@ -166,35 +111,26 @@ function decodeHTMLEntities(html) {
 	return textarea.value;
 }
 
+async function getAmount(address){
+
+	let amount = 0;
+	try{
+		const resAgree = await nodeFetch(nodeUrl + `/accounts/${address}`);
+		amount = JSON.parse(resAgree).account.mosaics.filter(mosaic=>mosaic.id === mosaicId)[0].amount;
+	}catch{}
+	return amount;
+}
+
 async function getCurrentDocument(doc,mosaicId,agree,disagree){
 
 	//nextが無効なので現在のdocを調べる
 	let resDoc;
-
-	//賛成票のカウント
-	let agreeAmount = 0;
-	try{
-		const resAgree = await nodeFetch(nodeUrl + `/accounts/${agree}`);
-		agreeAmount = JSON.parse(resAgree).account.mosaics.filter(mosaic=>mosaic.id === mosaicId)[0].amount;
-	}catch{}
-
-	//反対票のカウント
-	let disAgreeAmount = 0;
-	try{
-
-		const resDisAgree = await nodeFetch(nodeUrl + `/accounts/${disagree}`);
-		disAgreeAmount = JSON.parse(resDisAgree).account.mosaics.filter(mosaic=>mosaic.id === mosaicId)[0].amount;
-	}catch{}
-
+	let agreeAmount = getAmount(agree);	//賛成票のカウント
+	let disAgreeAmount = getAmount(disagree);//反対票のカウント
 	if(agreeAmount > disAgreeAmount){
-
-		//可決
-		resDoc = doc;
-
+		resDoc = doc;//可決
 	}else{
-
-		//否決、あるいは同数票
-		resDoc = currentDocument;
+		resDoc = currentDocument;//否決、あるいは同数票
 	}
 	return resDoc;
 }
@@ -246,48 +182,34 @@ const data = {
 		let confirmedHash;
 		try{
 			confirmedHash = await getConfirmedHash(next);
-			if(confirmedHash === false){
-				return false;
-			}
-
-		}catch(error){
-			//票決トークンがまだ投げられていない状態、あるいは投げられたトランザクションに提案ドキュメントのハッシュ値が指定されいていない場合。
-			//return getAppendDocument(next);
-			return "";
-		}
+			if(!confirmedHash){return false;}
+		}catch(error){return "";}
 
 		let message = await getMessage(confirmedHash);
-		if(!message){
-			return false;
-		}
+		if(!message){return false;}
 
 		try{
 			//否決、無効時ドキュメント
-			currentDocument = "[不採択追記ドキュメント]";
+			currentDocument = "";
 			const renderedMessage = await ejs.render(message ,data,{ async: true });
 			return decodeHTMLEntities(renderedMessage) ;
-			
-		}catch(error){
-
-			//追記提案はまだ採択されていない状態
-			return getAppendDocument(next);
-		}
+		}catch(error){return "";}
 	}
 };
-
 
 async function getConfirmedHash(next){
 
 	try{
 		//承認トークンと共に記された承認済みトランザクションを取得
-		const resFinalizedTx = await nodeFetch(nodeUrl + `/transactions/confirmed?transferMosaicId=${confirmId}&order=desc&recipientAddress=${next}`)
+		const resFinalizedTx = await nodeFetch(
+			nodeUrl + `/transactions/confirmed?transferMosaicId=${confirmId}&order=desc&recipientAddress=${next}`
+		);
 		const finalizedTx = JSON.parse(resFinalizedTx).data[0];
 		if(finalizedTx.transaction.message === undefined){
 			return false;
 		}
 
 		confirmedHash = sym.Convert.uint8ToUtf8(sym.Convert.hexToUint8(finalizedTx.transaction.message).slice(1)).trim();
-
 		if(confirmedHash.length !== 64){
 			return false;
 		}
@@ -300,16 +222,14 @@ async function getConfirmedHash(next){
 
 async function getMessage(confirmedHash){
 
+	let message ="";
 	try{
-
 		//承認済みトランザクションで提案されたドキュメントを取得
 		const resConfirmedTx = await nodeFetch(nodeUrl + "/transactions/confirmed/" + confirmedHash );
 		const confirmedTx = JSON.parse(resConfirmedTx);
 		message = sym.Convert.uint8ToUtf8(sym.Convert.hexToUint8(confirmedTx.transaction.message).slice(1))
 
 	}catch(error){
-
-//		addHistory("⚠【フォーマットエラー】:承認トークンの指定したドキュメントが見つかりません");
 		return false;
 	}
 	return message;
@@ -318,22 +238,6 @@ async function getMessage(confirmedHash){
 function getUpdateDocument(next){
 	return `<div class='chapter'>${currentDocument}</div>`;
 }
-
-function getAppendDocument(next){
-	return `<br><button onclick='showModalAppend("${next}")'>● 追記提案</button> <span class="address">${next}</span>`;
-}
-
-
-/*
-$('#modal_qr_scan').on('hide.bs.modal', function (e) {
-	stopVideo();		
-	clearRect();
-});
-*/
-
-
-
-
 </script>
 </body>
 </html>
