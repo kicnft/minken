@@ -49,13 +49,17 @@
 <body>
 <div class="container">
 <h1>みんなの憲章</h1>
+<h4>構造 Structure</h4>
 <div id="output" class="div-list"></div>
 <hr>
-<h4>履歴</h4>
+<h4>履歴 History</h4>
 <ul id="history"></ul>
 <hr>
-<h4>QR</h4>
+<h4>QRs</h4>
+<h5>ドラフト版 Draft Page</h5>
 <div id="qrcode"></div>
+<h5>発行版 Publish Page</h5>
+
 </div>
 
 <!-- 修正提案選択モーダル -->
@@ -69,7 +73,7 @@
 	<div class="modal-body">
 		<div>
 			<label><b>提案先アドレス</b><br></label>
-			<div id="modal_update_next"></div>
+			<div class="address" id="modal_update_next"></div>
 			<br>
 			<label><b>修正対象ドキュメント</b><br></label>
 			<div id="modal_update_doc"></div>
@@ -98,7 +102,7 @@
 	<div class="modal-body">
 		<div>
 			<label><b>提案先アドレス</b><br></label>
-			<div id="modal_append_next"></div>
+			<div class="address" id="modal_append_next"></div>
 			<br>
 			<label><b>追記提案ドキュメント</b><br></label>
 			<div id="modal_append_doc"></div>
@@ -125,10 +129,10 @@
 	<div class="modal-body">
 		<div>
 			<label><b>賛成アドレス</b><br></label>
-			<div id="modal_vote_agree"></div>
+			<div class="address" id="modal_vote_agree"></div>
 			<br>
 			<label><b>反対アドレス</b><br></label>
-			<div id="modal_vote_disagree"></div>
+			<div class="address" id="modal_vote_disagree"></div>
 		</div>
 	</div>
 	<div class="modal-footer">
@@ -574,7 +578,6 @@ function getAppendDocument(next){
 	return `<br><button onclick='showModalAppend("${next}")'>● 追記提案</button> <span class="address">${next}</span>`;
 }
 
-
 function buildDocument(textarea){
 
 	const docTextarea = document.getElementById(textarea);
@@ -624,8 +627,6 @@ function showModalVote(agree,disagree){
 
 	document.getElementById("modal_vote_agree").textContent = agree;
 	document.getElementById("modal_vote_disagree").textContent = disagree;
-
-
 	$("#modal_vote").modal("show");
 }
 
@@ -633,7 +634,6 @@ function showModalDecision(address,hash){
 
 	document.getElementById("modal_decision_address").textContent = address;
 	document.getElementById("modal_decision_hash").textContent = hash;
-
 	$("#modal_decision").modal("show");
 }
 
