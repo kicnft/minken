@@ -57,9 +57,10 @@
 <hr>
 <h4>QRs</h4>
 <h5>ドラフト版 Draft Page</h5>
-<div id="qrcode"></div>
+<div id="qr_draft"></div>
+<br>
 <h5>発行版 Publish Page</h5>
-
+<div id="qr_publish"></div>
 </div>
 
 <!-- 修正提案選択モーダル -->
@@ -253,11 +254,15 @@ startSymbolApplication(
 		setSocket(currentWebsocket);
 
 
-		const qrcode = new QRCode(document.getElementById('qrcode'), {
+		const qrDraft = new QRCode(document.getElementById('qr_draft'), {
 			text: location.href,
 			width: 256, height: 256
 		});
 
+		const qrPublish = new QRCode(document.getElementById('qr_publish'), {
+			text: `https://${location.host}/minken/view.html${location.search}`,
+			width: 256, height: 256
+		});
 
 	},
 
