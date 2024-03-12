@@ -130,6 +130,7 @@
 		<div>
 			<label><b>投票モザイク</b><br></label>
 			<div class="address" id="modal_vote_mosaic"></div>
+			<br>
 			<label><b>賛成アドレス</b><br></label>
 			<div class="address" id="modal_vote_agree"></div>
 			<br>
@@ -138,11 +139,19 @@
 		</div>
 	</div>
 	<div class="modal-footer">
+		<label><b>賛成</b><br></label>
 		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','sss')">SSSで賛成</button>
 		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','alice')">aLiceで賛成</button>
-		<br>
+		
+	</div><!-- /.modal-footer -->
+	<div class="modal-footer">
+		<label><b>反対</b><br></label>
+
 		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','sss')">SSSで反対</button>
 		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','alice')">aLiceで反対</button>
+	</div><!-- /.modal-footer -->
+	<div class="modal-footer">
+		
 		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
 	</div><!-- /.modal-footer -->
 </div></div><!-- /.modal-content --><!-- /.modal-dialog -->

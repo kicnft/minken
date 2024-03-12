@@ -55,6 +55,9 @@
 <button onclick="showModalCreate('sss')">SSSで作成</button>
 <button onclick="showModalCreate('self')">Demo用作成</button>
 
+<hr>
+
+
 <ul id="history"></ul>
 </div>
 
@@ -351,7 +354,7 @@ const updateDocument = `
 
 	addHistory(`アドレス：<span class="address">${address.plain()}</span>` );
 	addHistory(`ハッシュ：<span class="address">${signedTx.hash}</span>` );
-	addHistory(`<a href='edit.html?confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>憲章エクスプローラー</a>`);
+	addHistory(`<a href='edit.html?vote_id=${voteId.querySelector("select").value}&confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>憲章エクスプローラー</a>`);
 	$('#spinner_faucet').collapse('show');
 //	$("#modal_create").modal("hide");
 }
