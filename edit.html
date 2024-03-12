@@ -84,6 +84,9 @@
 			<label><b>修正提案ドキュメント</b><br></label>
 			<textarea class="form-control keyarea" id="modal_update_textarea" rows="2"></textarea>
 			<br>
+			<label><b>投票に使用するモザイク</b><br></label>
+			<input class="form-control" id="modal_update_mosaic" />
+			<br>
 		</div>
 	</div>
 	<div class="modal-footer">
@@ -117,6 +120,10 @@
 			<div id="modal_append_doc"></div>
 			<textarea class="form-control keyarea" id="modal_append_textarea" rows="2"></textarea>
 			<br>
+			<label><b>投票に使用するモザイク</b><br></label>
+			<input class="form-control" id="modal_append_mosaic" />
+			<br>
+
 		</div>
 	</div>
 	<div class="modal-footer">
@@ -194,14 +201,11 @@
 	</div>
 	<div class="modal-body">
 		<div>
-
 			<label><b>提案アドレス</b><br></label>
 			<div id="modal_decision_address"></div>
 			<br>
 			<label><b>対象ハッシュ</b><br></label>
 			<textarea  class="form-control keyarea" id="modal_decision_hash" rows="2"></textarea>
-
-
 		</div>
 	</div>
 	<div class="modal-footer">
@@ -627,19 +631,20 @@ function getAppendDocument(next){
 	return `<br><button onclick='showModalAppend("${next}")'>● 追記提案</button> <span class="address">${next}</span>`;
 }
 
-function buildDocument(textarea){
+function buildDocument(textarea,inputMosaic){
 
 	const docTextarea = document.getElementById(textarea);
 	const updateAccount = sym.Account.generateNewAccount(networkType);
 	const agreeAccount = sym.Account.generateNewAccount(networkType);
 	const disagreeAccount = sym.Account.generateNewAccount(networkType);
 	const appendAccount = sym.Account.generateNewAccount(networkType);
+	const voteMosaic = document.getElementById(inputMosaic);
 
 const proposalDocument = `
 <%= await update(
 	"${updateAccount.address.plain()}",
 	"${docTextarea.value}",
-	"${voteId}",
+	"${voteMosaic.value}",
 	"${agreeAccount.address.plain()}",
 	"${disagreeAccount.address.plain()}"
 ) %>
@@ -655,6 +660,9 @@ function showModalUpdate(next,updateDoc){
 
 	const nextAddress = document.getElementById("modal_update_next");
 	nextAddress.textContent = next;
+
+	const inputMosaic = document.getElementById("modal_update_mosaic");
+	inputMosaic.value = voteId;
 	$("#modal_update").modal("show");
 }
 
@@ -662,6 +670,10 @@ function showModalAppend(next,appendDoc){
 
 	const nextAddress = document.getElementById("modal_append_next");
 	nextAddress.textContent = next;
+
+	const inputMosaic = document.getElementById("modal_append_mosaic");
+	inputMosaic.value = voteId;
+
 	$("#modal_append").modal("show");
 }
 
@@ -695,6 +707,7 @@ function getWalletCallback(walletType){
 function okModalvote(id,walletType){
 
 	const address = document.getElementById(id).textContent ;
+
 	const callback = getWalletCallback(walletType);
 	putTransaction(
 		address,
@@ -741,7 +754,7 @@ function okModalDecision(walletType){
 function okModalUpdate(walletType){
 
 	const nextAddress = document.getElementById("modal_update_next");
-	const updateDocument = buildDocument("modal_update_textarea");
+	const updateDocument = buildDocument("modal_update_textarea","modal_update_mosaic");
 	const callback = getWalletCallback(walletType);
 	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(updateDocument),callback);
 	if(walletType === "sss"){
@@ -756,7 +769,7 @@ function okModalAppend(walletType){
 
 	const callback = getWalletCallback(walletType);
 	const nextAddress = document.getElementById("modal_append_next");
-	const appendDocument = buildDocument("modal_append_textarea");
+	const appendDocument = buildDocument("modal_append_textarea","modal_append_mosaic");
 	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(appendDocument),callback);
 //	$("#modal_append").modal("hide");
 	if(walletType === "sss"){
