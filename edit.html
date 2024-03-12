@@ -707,11 +707,11 @@ function getWalletCallback(walletType){
 function okModalvote(id,walletType){
 
 	const address = document.getElementById(id).textContent ;
-
+	const voteMosaicId = document.getElementById("modal_vote_mosaic").textContent;
 	const callback = getWalletCallback(walletType);
 	putTransaction(
 		address,
-		[new sym.Mosaic(new sym.MosaicId(voteId), sym.UInt64.fromUint(1))],
+		[new sym.Mosaic(new sym.MosaicId(voteMosaicId), sym.UInt64.fromUint(1))],
 		sym.EmptyMessage,
 		callback
 	);
