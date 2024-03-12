@@ -28,18 +28,6 @@
 	padding: 0; /* パディングをリセット */
 }
 
-.chapter {
-	border: 1px solid #ff0000;
-	box-sizing: border-box;
-	margin: 1px;
-	display: list-item; /* リストアイテムとして表示 */
-	margin-left: 1.4em; /* 左マージンを設定して、マーカーの位置を調整 */
-}
-
-.indented {
-    padding-left: 20px;
-}
-
 .address { font-size : 9pt ; }
 
 </style>
@@ -50,14 +38,16 @@
 <h1>みんなの憲章</h1>
 <div id="output" class="div-list"></div>
 <hr>
-<h4>初期ドキュメント作成ツール</h4>
+<h4>ドキュメント新規作成ツール</h4>
 
+ドキュメントを新規作成します。
+SSSで作成を選択すると、SSSで管理しているアカウントが所有するモザイクから議決トークンと初期投票トークンを選択できます。
+Demo用作成を選択すると、ページ内に埋め込んだ秘密鍵が所有するモザイクから議決トークンと初期投票トークンを選択します。
+
+<br>
 <button onclick="showModalCreate('sss')">SSSで作成</button>
 <button onclick="showModalCreate('self')">Demo用作成</button>
-
 <hr>
-
-
 <ul id="history"></ul>
 </div>
 
@@ -92,9 +82,6 @@
 		</div><!-- /.modal-footer -->
 	</div></div><!-- /.modal-content --><!-- /.modal-dialog -->
 	</div><!-- /.modal -->
-	
-
-
 <script>
 const CONFIRMED_TOKEN_ID = "193732F8B74E36EF"; //票決トークン
 const VOTE_TOKEN_ID = "47E966473AECCC36";      //投票トークン
@@ -131,10 +118,6 @@ let nodeUrl;
 
 const ITEM_NAME = "symbolseminar";
 const sym = require("/node_modules/symbol-sdk");
-const qr  = require("/node_modules/symbol-qr-library");
-
-//TA6EAATQMNJM4QV4ARM3DVWGSZULWBDB7HGEVPY
-//C9E741092833FEA79D7DB7DC839506BBEB6704631DB9B4D59C60A02BF6B0200C
 const aliceKey = "A4EC288C8566B8D3C2DC02712C66B368813959E02D619AB40A523066278D6506";
 let alice;
 
@@ -367,14 +350,11 @@ const announceBySSS = async function(tx3,address){
 	return signedTx3;
 }
 
-
-
 const announceBySelf = function(tx3,address){
 	const signedTx3 = alice.sign(tx3,generationHash);
 	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
 	return signedTx3;
 }
-
 </script>
 </body>
 </html>
