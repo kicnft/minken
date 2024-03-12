@@ -62,7 +62,8 @@
 <h5>発行版 Publish Page</h5>
 <div id="qr_publish"></div>
 </div>
-
+<br>
+<br>
 <!-- 修正提案選択モーダル -->
 <div class="modal fade" id="modal_update" tabindex="-1" role="dialog">
 <div class="modal-dialog" role="document"><div class="modal-content">
@@ -86,12 +87,12 @@
 	</div>
 	<div class="modal-footer">
 		<button type="button" class="btn btn-primary" onclick="okModalUpdate('sss')">
-			SSSで提案
 			<span id="spinner_update_sss" class="collapse spinner-border spinner-border-sm" role="status"></span>
+			SSSで提案
 		</button>
 		<button type="button" class="btn btn-primary" onclick="okModalUpdate('alice')">
-			aLiceで提案
 			<span id="spinner_update_alice" class="collapse spinner-border spinner-border-sm" role="status"></span>
+			aLiceで提案
 		</button>
 		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
 	</div><!-- /.modal-footer -->
@@ -119,12 +120,12 @@
 	</div>
 	<div class="modal-footer">
 		<button type="button" class="btn btn-primary" onclick="okModalAppend('sss')">
-			SSSで提案
 			<span id="spinner_append_sss" class="collapse spinner-border spinner-border-sm" role="status"></span>
+			SSSで提案
 		</button>
 		<button type="button" class="btn btn-primary" onclick="okModalAppend('alice')">
-			aLiceで提案
 			<span id="spinner_append_alice" class="collapse spinner-border spinner-border-sm" role="status"></span>
+			aLiceで提案
 		</button>
 		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
 	</div><!-- /.modal-footer -->
@@ -466,7 +467,7 @@ const callbackSelf = function(tx3,address){
 const data2 = {
 
 	update : async function(next,doc,mosaicId,agree,disagree){
-		addHistory(`📣改善提案があります <button onclick='showModalDecision("${currentAddress}","${txMetaHash}")'>議決</button>`,true);
+		addHistory(`📣投票受付中の改善提案があります <button onclick='showModalDecision("${currentAddress}","${txMetaHash}")'>議決</button>`,true);
 		addHistory(doc,true);
 //		addHistory(`<button onclick='vote("${agree}")'>賛成</button> ` + agree,true);
 //		addHistory(`<button onclick='vote("${disagree}")'>反対</button> ` + disagree,true);
