@@ -91,7 +91,7 @@ startSymbolApplication(
 			text: location.href,
 			width: 256, height: 256
 		});
-		document.getElementById("qr_link_draft").href = location.href;
+		document.getElementById("qr_link_draft").href = `https://${location.host}/minken/edit.html${location.search}`;
 
 	},
 
