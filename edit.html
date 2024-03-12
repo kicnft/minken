@@ -22,7 +22,7 @@
 	<script src="js/symapp.js"></script>
 <style>
 .jq-toast-wrap {
-    width:250px;
+    width:350px;
 }
 
 .div-list {
@@ -128,6 +128,8 @@
 	</div>
 	<div class="modal-body">
 		<div>
+			<label><b>投票モザイク</b><br></label>
+			<div class="address" id="modal_vote_mosaic"></div>
 			<label><b>賛成アドレス</b><br></label>
 			<div class="address" id="modal_vote_agree"></div>
 			<br>
@@ -138,6 +140,7 @@
 	<div class="modal-footer">
 		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','sss')">SSSで賛成</button>
 		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','alice')">aLiceで賛成</button>
+		<br>
 		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','sss')">SSSで反対</button>
 		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','alice')">aLiceで反対</button>
 		<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
@@ -409,7 +412,7 @@ const data2 = {
 		addHistory(doc,true);
 //		addHistory(`<button onclick='vote("${agree}")'>賛成</button> ` + agree,true);
 //		addHistory(`<button onclick='vote("${disagree}")'>反対</button> ` + disagree,true);
-		addHistory(`<button onclick='showModalVote("${agree}","${disagree}")'>投票</button>`,true);
+		addHistory(`<button onclick='showModalVote("${agree}","${disagree}","${mosaicId}")'>投票</button>`,true);
 	},
 	append : async function(next){
 	}
@@ -623,10 +626,11 @@ function showModalAppend(next,appendDoc){
 	$("#modal_append").modal("show");
 }
 
-function showModalVote(agree,disagree){
+function showModalVote(agree,disagree,mosaicId){
 
 	document.getElementById("modal_vote_agree").textContent = agree;
 	document.getElementById("modal_vote_disagree").textContent = disagree;
+	document.getElementById("modal_vote_mosaic").textContent = mosaicId;
 	$("#modal_vote").modal("show");
 }
 
