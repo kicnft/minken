@@ -30,8 +30,13 @@
 <h1>みんなの憲章</h1>
 <div id="output" class="div-list"></div>
 <hr>
-<h4>QR</h4>
-<div id="qrcode"></div>
+
+<h4>QRs</h4>
+<h5>ドラフト版 <a id="qr_link_draft" href="">Draft Page</a></h5>
+<div id="qr_draft"></div>
+<br>
+<h5>発行版 Publish Page(このページ)</h5>
+<div id="qr_publish"></div>
 </div>
 <script>
 const CONFIRMED_TOKEN_ID = "54F9D50A6D73E426"; //票決トークン
@@ -82,10 +87,12 @@ startSymbolApplication(
 		olElement.innerHTML = decodeHTMLEntities(generatedDocument);
 
 		//QRコード
-		const qrcode = new QRCode(document.getElementById('qrcode'), {
+		const qrcode = new QRCode(document.getElementById('qr_link_draft'), {
 			text: location.href,
 			width: 256, height: 256
 		});
+		document.getElementById("qr_link_draft").href = location.href;
+
 	},
 
 	//未使用
