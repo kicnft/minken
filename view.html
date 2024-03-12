@@ -37,6 +37,7 @@
 <br>
 <h5>発行版 Publish Page(このページ)</h5>
 <div id="qr_publish"></div>
+<span id="spinner_ready" class="collapse spinner-border" role="status"></span>
 </div>
 <script>
 const CONFIRMED_TOKEN_ID = "54F9D50A6D73E426"; //票決トークン
@@ -60,6 +61,8 @@ let nodeUrl;
 let confirmId;
 let transactionId;
 let voteId;
+
+$('#spinner_ready').collapse('show');
 
 startSymbolApplication(
 
@@ -87,11 +90,19 @@ startSymbolApplication(
 		olElement.innerHTML = decodeHTMLEntities(generatedDocument);
 
 		//QRコード
-		const qrcode = new QRCode(document.getElementById('qr_link_draft'), {
-			text: location.href,
+		const qrcode = new QRCode(document.getElementById('qr_draft'), {
+			text: `https://${location.host}/minken/edit.html${location.search}`,
 			width: 256, height: 256
 		});
 		document.getElementById("qr_link_draft").href = `https://${location.host}/minken/edit.html${location.search}`;
+
+		const qrPublish = new QRCode(document.getElementById('qr_publish'), {
+			text: localhost.href,
+			width: 256, height: 256
+		});
+		document.getElementById("qr_link_publish").href = `https://${location.host}/minken/view.html${location.search}`;
+		$('#spinner_ready').collapse('hide');
+
 
 	},
 

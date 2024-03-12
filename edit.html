@@ -61,6 +61,7 @@
 <br>
 <h5>発行版 <a id="qr_link_publish" href="">Publish Page</a></h5>
 <div id="qr_publish"></div>
+<span id="spinner_ready" class="collapse spinner-border" role="status"></span>
 </div>
 <br>
 <br>
@@ -251,6 +252,7 @@ let nodeUrl;
 let confirmId;
 let transactionId;
 let voteId;
+$('#spinner_ready').collapse('show');
 
 startSymbolApplication(
 
@@ -258,6 +260,7 @@ startSymbolApplication(
 	
 	//onReady
 	async function(node){
+
 		console.log("select : " + node.url);
 		$.toast({heading: 'Select Node',text: node.url,showHideTransition: 'plain',icon: 'info',});
 		nodeUrl = node.url;
@@ -295,6 +298,7 @@ startSymbolApplication(
 			width: 256, height: 256
 		});
 		document.getElementById("qr_link_publish").href = `https://${location.host}/minken/view.html${location.search}`;
+		$('#spinner_ready').collapse('hide');
 
 	},
 
