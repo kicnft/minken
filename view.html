@@ -97,10 +97,9 @@ startSymbolApplication(
 		document.getElementById("qr_link_draft").href = `https://${location.host}/minken/edit.html${location.search}`;
 
 		const qrPublish = new QRCode(document.getElementById('qr_publish'), {
-			text: localhost.href,
+			text: location.href,
 			width: 256, height: 256
 		});
-		document.getElementById("qr_link_publish").href = `https://${location.host}/minken/view.html${location.search}`;
 		$('#spinner_ready').collapse('hide');
 
 
