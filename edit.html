@@ -56,10 +56,10 @@
 <ul id="history"></ul>
 <hr>
 <h4>QRs</h4>
-<h5>ドラフト版 Draft Page</h5>
+<h5>ドラフト版 <a id="qr_link_draft" href="">Draft Page</a></h5>
 <div id="qr_draft"></div>
 <br>
-<h5>発行版 Publish Page</h5>
+<h5>発行版 <a id="qr_link_publish" href="">Publish Page</a></h5>
 <div id="qr_publish"></div>
 </div>
 <br>
@@ -289,11 +289,13 @@ startSymbolApplication(
 			text: location.href,
 			width: 256, height: 256
 		});
+		document.getElementById("qr_link_draft").href = location.href;
 
 		const qrPublish = new QRCode(document.getElementById('qr_publish'), {
 			text: `https://${location.host}/minken/view.html${location.search}`,
 			width: 256, height: 256
 		});
+		document.getElementById("qr_link_publish").href = `https://${location.host}/minken/view.html${location.search}`;
 
 	},
 
@@ -313,6 +315,8 @@ startSymbolApplication(
 	async function(event     ){
 		console.log(event);
 		if(event.topic.indexOf("confirmed") === 0){
+			alert("提案先アカウントの状態に更新がありました。リロードしてください。")
+
 			$('#spinner_agree_sss').collapse('hide');
 			$('#spinner_agree_alice').collapse('hide');
 			$('#spinner_disagree_sss').collapse('hide');
@@ -328,7 +332,6 @@ startSymbolApplication(
 			$("#modal_update").modal("hide");
 			$("#modal_append").modal("hide");
 			
-			alert("提案先アカウントの状態に更新がありました。リロードしてください。")
 		} 
 	},	//onSocketMessage ソケット受信時
 	async function(nodeSocket){
@@ -374,25 +377,22 @@ function addHistory(item,isIndent) {
 	list.appendChild(newItem);
 }
 
+async function getAmount(mosaicId,address){
+
+let amount = 0;
+try{
+	const resAgree = await nodeFetch(nodeUrl + `/accounts/${address}`);
+	amount = JSON.parse(resAgree).account.mosaics.filter(mosaic=>mosaic.id === mosaicId)[0].amount;
+}catch{}
+return amount;
+}
+
 async function getCurrentDocument(doc,mosaicId,agree,disagree){
 
 	//nextが無効なので現在のdocを調べる
 	let resDoc;
-
-	//賛成票のカウント
-	let agreeAmount = 0;
-	try{
-		const resAgree = await nodeFetch(nodeUrl + `/accounts/${agree}`);
-		agreeAmount = JSON.parse(resAgree).account.mosaics.filter(mosaic=>mosaic.id === mosaicId)[0].amount;
-	}catch{}
-
-	//反対票のカウント
-	let disAgreeAmount = 0;
-	try{
-
-		const resDisAgree = await nodeFetch(nodeUrl + `/accounts/${disagree}`);
-		disAgreeAmount = JSON.parse(resDisAgree).account.mosaics.filter(mosaic=>mosaic.id === mosaicId)[0].amount;
-	}catch{}
+	let agreeAmount = await getAmount(mosaicId,agree);	//賛成票のカウント
+	let disAgreeAmount = await getAmount(mosaicId,disagree);//反対票のカウント
 
 	if(agreeAmount > disAgreeAmount){
 
@@ -426,21 +426,6 @@ function putTransaction(rawAddress,mosaics,message,callback){
 	socketSend(currentWebsocket,'status/'   + address.plain());
 	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
 	socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
-
-/*
-	const payload = tx3.serialize();
-	location.href = `alice://sign?data=${payload}&type=request_sign_transaction&node=${sym.Convert.utf8ToHex(nodeUrl)}&method=announce&deadline=3600`;
-
-	window.SSS.setTransaction(tx3);
-	window.SSS.requestSign().then((signedTx3) => {
-		// announce
-		nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
-		socketSend(currentWebsocket,'status/'   + address.plain());
-		socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
-		socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
-	})
-*/
-//	signedTx3 = alice.sign(tx3,generationHash);
 }
 
 const callbackSSS = function(tx3,address){
@@ -449,7 +434,6 @@ const callbackSSS = function(tx3,address){
 		// announce
 		nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
 	});
-
 }
 
 const callbackAlice = function(tx3,address){
@@ -661,13 +645,6 @@ const proposalDocument = `
 
 	return proposalDocument;
 }
-/*
-$('#modal_qr_scan').on('hide.bs.modal', function (e) {
-	stopVideo();		
-	clearRect();
-});
-*/
-
 
 function showModalUpdate(next,updateDoc){
 	const textarea = document.getElementById("modal_update_doc");
@@ -706,10 +683,8 @@ function getWalletCallback(walletType){
 	if(walletType === 'sss'){
 		callback = callbackSSS;
 	}else if(walletType === 'alice'){
-
 		callback = callbackAlice;
 	}else{
-
 		callback = callbackSelf;
 	}
 	return callback;
@@ -733,10 +708,8 @@ function okModalvote(id,walletType){
 		}
 	}else{
 		if(id.indexOf("disagree")>=0){
-
 			$('#spinner_disagree_alice').collapse('show');	
 		}else{
-
 			$('#spinner_agree_alice').collapse('show');
 		}
 	}
@@ -756,7 +729,6 @@ function okModalDecision(walletType){
 	if(walletType === "sss"){
 		$('#spinner_decision_sss').collapse('show');
 	}else{
-
 		$('#spinner_decision_alice').collapse('show');	
 	}
 //	$("#modal_decision").modal("hide");
@@ -772,7 +744,6 @@ function okModalUpdate(walletType){
 	if(walletType === "sss"){
 		$('#spinner_update_sss').collapse('show');
 	}else{
-
 		$('#spinner_update_alice').collapse('show');	
 	}
 	//	$("#modal_update").modal("hide");
@@ -785,15 +756,12 @@ function okModalAppend(walletType){
 	const appendDocument = buildDocument("modal_append_textarea");
 	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(appendDocument),callback);
 //	$("#modal_append").modal("hide");
-if(walletType === "sss"){
+	if(walletType === "sss"){
 		$('#spinner_append_sss').collapse('show');
 	}else{
-
 		$('#spinner_append_alice').collapse('show');	
 	}
 }
-
-
 </script>
 </body>
 </html>
