@@ -298,10 +298,10 @@ startSymbolApplication(
 		});
 
 		const qrPublish = new QRCode(document.getElementById('qr_publish'), {
-			text: `https://${location.host}/minken/view.html${location.search}`,
+			text: `https://${location.host}/view.html${location.search}`,
 			width: 256, height: 256
 		});
-		document.getElementById("qr_link_publish").href = `https://${location.host}/minken/view.html${location.search}`;
+		document.getElementById("qr_link_publish").href = `https://${location.host}/view.html${location.search}`;
 		$('#spinner_ready').collapse('hide');
 
 	},
