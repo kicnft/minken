@@ -148,7 +148,7 @@ const CONFIG_SYMBOL_APPLICATION = {
 	testnet:"TEST_NET"
 };
 
-setTimeout(()=>{
+
 startSymbolApplication(
 
 	CONFIG_SYMBOL_APPLICATION,
@@ -194,7 +194,7 @@ startSymbolApplication(
 	async function(nodeSocket){},	//onSocketResumed ソケット接続回復時
 	async function(){/* onVisible 画面フォーカス回復時     */}
 );
-},500);
+
 
 async function showModalCreate(type){
 	walletType = type;

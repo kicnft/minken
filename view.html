@@ -5,20 +5,10 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.css" integrity="sha512-wJgJNTBBkLit7ymC6vvzM1EcSWeM9mmOu+1USHaRBbHkm6W9EgM0HY27+UtUaprntaYQJF75rc8gjxllKs5OIQ==" crossorigin="anonymous" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js" integrity="sha512-zlWWyZq71UMApAjih4WkaRpikgY9Bz1oXIW5G0fED4vk14JjGlQ1UmkGM392jEULP8jbNMiwLWdM8Z87Hu88Fw==" crossorigin="anonymous"></script>
-
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-	<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-
-	<script src="https://xembook.github.io/nem2-browserify/symbol-sdk-pack-2.0.4.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ejs/ejs.min.js"></script>
-
-	<script src="js/config.js"></script>
-	<script src="js/symapp.js"></script>
-<style>
+	
+	
+	<style>
 .jq-toast-wrap {
     width:300px;
 }
@@ -39,6 +29,19 @@
 <div id="qr_publish"></div>
 <span id="spinner_ready" class="collapse spinner-border" role="status"></span>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js" integrity="sha512-zlWWyZq71UMApAjih4WkaRpikgY9Bz1oXIW5G0fED4vk14JjGlQ1UmkGM392jEULP8jbNMiwLWdM8Z87Hu88Fw==" crossorigin="anonymous"></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
+<script src="https://xembook.github.io/nem2-browserify/symbol-sdk-pack-2.0.4.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ejs/ejs.min.js"></script>
+
+<script src="js/config.js"></script>
+<script src="js/symapp.js"></script>
+
 <script>
 const CONFIRMED_TOKEN_ID = "54F9D50A6D73E426"; //票決トークン
 const VOTE_TOKEN_ID = "55CEF6ACA47C09BC"; //投票トークン
@@ -63,7 +66,7 @@ let transactionId;
 let voteId;
 
 $('#spinner_ready').collapse('show');
-setTimeout(()=>{
+
 startSymbolApplication(
 
 	CONFIG_SYMBOL_APPLICATION,
@@ -112,7 +115,7 @@ startSymbolApplication(
 	async function(nodeSocket){},	//onSocketResumed ソケット接続回復時
 	async function(){} 			//onVisible 画面フォーカス回復時
 );
-},500);
+
 
 function getParams(params,key,defaultValue){
 	let item = params.get(key);
