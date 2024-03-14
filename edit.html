@@ -578,7 +578,10 @@ async function checkVoting(next){
 					currentAddress = next;
 					txMetaHash = tx.meta.hash;
 					const renderedMessage = await ejs.render(msg ,data2,{ async: true });
-				}catch{}
+				}catch(error){
+					console.log(error);
+
+				}
 			}
 		}
 	}catch(error){}
@@ -643,16 +646,28 @@ function buildDocument(textarea,inputMosaic){
 	const appendAccount = sym.Account.generateNewAccount(networkType);
 	const voteMosaic = document.getElementById(inputMosaic);
 
+// const proposalDocument = `
+// <%= await update(
+// 	"${updateAccount.address.plain()}",
+// 	``${docTextarea.value}``,
+// 	"${voteMosaic.value}",
+// 	"${agreeAccount.address.plain()}",
+// 	"${disagreeAccount.address.plain()}"
+// ) %>
+// <%= await append("${appendAccount.address.plain()}") %>
+// `;//`
+
 const proposalDocument = `
 <%= await update(
-	"${updateAccount.address.plain()}",
-	"${docTextarea.value}",
+	"${updateAccount.address.plain()}",`
+	+ "\`" + docTextarea.value + "\`" + `,
 	"${voteMosaic.value}",
 	"${agreeAccount.address.plain()}",
 	"${disagreeAccount.address.plain()}"
 ) %>
 <%= await append("${appendAccount.address.plain()}") %>
 `;//`
+
 
 	return proposalDocument;
 }
