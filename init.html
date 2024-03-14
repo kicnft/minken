@@ -284,8 +284,10 @@ const updateDocument = `
 		networkType
 	).setMaxFee(100);
 
+
 	let signedTx;
 	if(walletType === 'sss'){
+		alert("新規ドキュメントを作成します。");
 		signedTx = await announceBySSS(tx,address);
 	}else{
 
@@ -332,6 +334,8 @@ const updateDocument = `
 */
 	let signedTx2;
 	if(walletType === 'sss'){
+
+		alert("新規ドキュメントを承認します。");
 		signedTx2 = await announceBySSS(aggregateTx,address);
 	}else{
 
