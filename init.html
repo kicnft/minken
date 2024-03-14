@@ -106,9 +106,6 @@ let preDoc = "[新規ドキュメント]";
 let currentAgree;
 let currentDisagree;
 
-let encryptedSignerJSON;
-let signerRawAddress;
-let signerPublicAccount;
 let networkType;
 let currencyMosaicId;
 let generationHash;
@@ -241,23 +238,30 @@ function appendMosaics(elem,mosaics){
 	}
 }
 
-function okModalCreate(){
+async function okModalCreate(){
+
+	let activeAddress;
+	let activePublicKey;
 
 	if(walletType === "sss"){
 		activeAddress = window.SSS.activeAddress;
+		activePublicKey = window.SSS.activePublicKey;
 	}else{
 		alice = sym.Account.createFromPrivateKey(aliceKey,networkType);
 		activeAddress = alice.address.plain();
+		activePublicKey = alice.publicKey;
 	}
 
-	confirmId = document.getElementById("form_decision");
-	voteId = document.getElementById("form_vote");
+
+	const publicAccount = sym.PublicAccount.createFromPublicKey(activePublicKey,networkType);
+	const confirmId = document.getElementById("form_decision");
+	const voteId = document.getElementById("form_vote");
 	
-	address = sym.Account.generateNewAccount(networkType).address;
-	updateAccount = sym.Account.generateNewAccount(networkType);
-	agreeAccount = sym.Account.generateNewAccount(networkType);
-	disagreeAccount = sym.Account.generateNewAccount(networkType);
-	appendAccount = sym.Account.generateNewAccount(networkType);
+	const address = sym.Account.generateNewAccount(networkType).address;
+	const updateAccount = sym.Account.generateNewAccount(networkType);
+	const agreeAccount = sym.Account.generateNewAccount(networkType);
+	const disagreeAccount = sym.Account.generateNewAccount(networkType);
+	const appendAccount = sym.Account.generateNewAccount(networkType);
 
 
 const updateDocument = `
@@ -273,7 +277,7 @@ const updateDocument = `
 
 	console.log(updateDocument);
 
-	tx = sym.TransferTransaction.create(
+	const tx = sym.TransferTransaction.create(
 		sym.Deadline.create(epochAdjustment),
 		address,[],
 		sym.PlainMessage.create(updateDocument),
@@ -282,7 +286,7 @@ const updateDocument = `
 
 	let signedTx;
 	if(walletType === 'sss'){
-		signedTx = announceBySSS(tx,address);
+		signedTx = await announceBySSS(tx,address);
 	}else{
 
 		signedTx = announceBySelf(tx,address);
@@ -291,7 +295,7 @@ const updateDocument = `
 //	signedTx = alice.sign(tx,generationHash);
 //	console.log(signedTx);
 
-	tx2 = sym.TransferTransaction.create(
+	const tx2 = sym.TransferTransaction.create(
 		undefined,
 		address,
 		[new sym.Mosaic(new sym.MosaicId(confirmId.querySelector("select").value), sym.UInt64.fromUint(1))],
@@ -299,7 +303,7 @@ const updateDocument = `
 		networkType
 	);
 
-	tx3 = sym.TransferTransaction.create(
+	const tx3 = sym.TransferTransaction.create(
 		undefined,
 		agreeAccount.address,
 		[new sym.Mosaic(new sym.MosaicId(voteId.querySelector("select").value), sym.UInt64.fromUint(1))],
@@ -307,12 +311,12 @@ const updateDocument = `
 		networkType
 	);
 
-	aggregateTx = sym.AggregateTransaction.createComplete(
+	const aggregateTx = sym.AggregateTransaction.createComplete(
 
 		sym.Deadline.create(epochAdjustment),
 		[
-			tx2.toAggregate(alice.publicAccount),
-			tx3.toAggregate(alice.publicAccount),        
+			tx2.toAggregate(publicAccount),
+			tx3.toAggregate(publicAccount),        
 		],
 		networkType,
 		[],
@@ -325,7 +329,7 @@ const updateDocument = `
 */
 	let signedTx2;
 	if(walletType === 'sss'){
-		signedTx2 = announceBySSS(aggregateTx,address);
+		signedTx2 = await announceBySSS(aggregateTx,address);
 	}else{
 
 		signedTx2 = announceBySelf(aggregateTx,address);
@@ -337,8 +341,8 @@ const updateDocument = `
 
 	addHistory(`アドレス：<span class="address">${address.plain()}</span>` );
 	addHistory(`ハッシュ：<span class="address">${signedTx.hash}</span>` );
-//	addHistory(`<a href='edit.html?vote_id=${voteId.querySelector("select").value}&confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>憲章エクスプローラー</a>`);
-	addHistory(`<a href='edit.html?confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>憲章エクスプローラー</a>`);
+	addHistory(`<a href='edit.html?vote_id=${voteId.querySelector("select").value}&confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>憲章エクスプローラー</a>`);
+//	addHistory(`<a href='edit.html?confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>憲章エクスプローラー</a>`);
 	$('#spinner_faucet').collapse('show');
 //	$("#modal_create").modal("hide");
 }
