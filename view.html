@@ -63,7 +63,7 @@ let transactionId;
 let voteId;
 
 $('#spinner_ready').collapse('show');
-
+setTimeout(()=>{
 startSymbolApplication(
 
 	CONFIG_SYMBOL_APPLICATION,
@@ -112,6 +112,7 @@ startSymbolApplication(
 	async function(nodeSocket){},	//onSocketResumed ソケット接続回復時
 	async function(){} 			//onVisible 画面フォーカス回復時
 );
+},500);
 
 function getParams(params,key,defaultValue){
 	let item = params.get(key);
