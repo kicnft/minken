@@ -223,6 +223,7 @@
 </div><!-- /.modal -->
 
 <script>
+	setTimeout(()=>{
 const CONFIRMED_TOKEN_ID = "54F9D50A6D73E426"; //議決トークン
 const VOTE_TOKEN_ID = "55CEF6ACA47C09BC"; //投票トークン
 const INIT_DOCUMENT_ID = "338DCC41E690DB6A7932393B32149872D534603A9D49CD6E4F64111E98BAF21B"; //初期ドキュメント
@@ -256,7 +257,7 @@ let nodeUrl;
 let confirmId;
 let transactionId;
 let voteId;
-setTimeout(()=>{
+
 $('#spinner_ready').collapse('show');
 startSymbolApplication(
 
@@ -350,7 +351,7 @@ startSymbolApplication(
 	},	//onSocketResumed ソケット接続回復時
 	async function(){/* onVisible 画面フォーカス回復時     */}
 );
-},1000);
+
 
 function getParams(params,key,defaultValue){
 	let item = params.get(key);
@@ -796,6 +797,7 @@ function okModalAppend(walletType){
 		$('#spinner_append_alice').collapse('show');	
 	}
 }
+},1000);
 </script>
 </body>
 </html>
