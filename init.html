@@ -291,6 +291,9 @@ const updateDocument = `
 
 		signedTx = announceBySelf(tx,address);
 	}
+	socketSend(currentWebsocket,'status/'   + address.plain());
+	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
+	socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
 
 //	signedTx = alice.sign(tx,generationHash);
 //	console.log(signedTx);
@@ -335,9 +338,6 @@ const updateDocument = `
 		signedTx2 = announceBySelf(aggregateTx,address);
 	}
 
-	socketSend(currentWebsocket,'status/'   + address.plain());
-	socketSend(currentWebsocket,'confirmedAdded/'   + address.plain());
-	socketSend(currentWebsocket,'unconfirmedAdded/' + address.plain());	
 
 	addHistory(`アドレス：<span class="address">${address.plain()}</span>` );
 	addHistory(`ハッシュ：<span class="address">${signedTx.hash}</span>` );
