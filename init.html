@@ -287,7 +287,7 @@ const updateDocument = `
 
 	let signedTx;
 	if(walletType === 'sss'){
-		alert("新規ドキュメントを作成します。");
+		alert("新規ドキュメントを【作成】します。(1回目の署名)");
 		signedTx = await announceBySSS(tx,address);
 	}else{
 
@@ -335,7 +335,7 @@ const updateDocument = `
 	let signedTx2;
 	if(walletType === 'sss'){
 
-		alert("新規ドキュメントを承認します。");
+		alert("新規ドキュメントを【承認】します。(２回目の署名)");
 		signedTx2 = await announceBySSS(aggregateTx,address);
 	}else{
 
@@ -345,7 +345,7 @@ const updateDocument = `
 
 	addHistory(`アドレス：<span class="address">${address.plain()}</span>` );
 	addHistory(`ハッシュ：<span class="address">${signedTx.hash}</span>` );
-	addHistory(`<a href='edit.html?vote_id=${voteId.querySelector("select").value}&confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>憲章エクスプローラー</a>`);
+	addHistory(`<a href='edit.html?vote_id=${voteId.querySelector("select").value}&confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>ドラフト版 Draft Page</a>`);
 //	addHistory(`<a href='edit.html?confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>憲章エクスプローラー</a>`);
 	$('#spinner_faucet').collapse('show');
 //	$("#modal_create").modal("hide");

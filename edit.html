@@ -322,7 +322,6 @@ startSymbolApplication(
 	async function(event     ){
 		console.log(event);
 		if(event.topic.indexOf("confirmed") === 0){
-			alert("提案先アカウントの状態に更新がありました。リロードしてください。")
 
 			$('#spinner_agree_sss').collapse('hide');
 			$('#spinner_agree_alice').collapse('hide');
@@ -339,6 +338,9 @@ startSymbolApplication(
 			$("#modal_update").modal("hide");
 			$("#modal_append").modal("hide");
 			
+			if(confirm("提案先アカウントの状態に更新がありました。リロードします。")){
+				location.reload();
+			}
 		} 
 	},	//onSocketMessage ソケット受信時
 	async function(nodeSocket){
