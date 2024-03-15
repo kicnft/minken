@@ -65,7 +65,7 @@ let confirmId;
 let transactionId;
 let voteId;
 
-$('#spinner_ready').collapse('show');
+$('#spinner_ready').removeClass('collapse');
 
 startSymbolApplication(
 
@@ -103,7 +103,7 @@ startSymbolApplication(
 			text: location.href,
 			width: 256, height: 256
 		});
-		$('#spinner_ready').collapse('hide');
+		$('#spinner_ready').addClass('collapse');
 
 
 	},

@@ -77,11 +77,11 @@
 		</div>
 	</div>
 	<div class="modal-footer">
-		<button type="button" class="btn btn-primary" onclick="okModalUpdate('sss')">
+		<button type="button" id="button_update_sss" class="btn btn-primary" onclick="okModalUpdate('sss')">
 			<span id="spinner_update_sss" class="collapse spinner-border spinner-border-sm" role="status"></span>
 			SSSで提案
 		</button>
-		<button type="button" class="btn btn-primary" onclick="okModalUpdate('alice')">
+		<button type="button" id="button_update_alice" class="btn btn-primary" onclick="okModalUpdate('alice')">
 			<span id="spinner_update_alice" class="collapse spinner-border spinner-border-sm" role="status"></span>
 			aLiceで提案
 		</button>
@@ -114,11 +114,11 @@
 		</div>
 	</div>
 	<div class="modal-footer">
-		<button type="button" class="btn btn-primary" onclick="okModalAppend('sss')">
+		<button type="button" id="button_append_sss" class="btn btn-primary" onclick="okModalAppend('sss')">
 			<span id="spinner_append_sss" class="collapse spinner-border spinner-border-sm" role="status"></span>
 			SSSで提案
 		</button>
-		<button type="button" class="btn btn-primary" onclick="okModalAppend('alice')">
+		<button type="button" id="button_append_alice" class="btn btn-primary" onclick="okModalAppend('alice')">
 			<span id="spinner_append_alice" class="collapse spinner-border spinner-border-sm" role="status"></span>
 			aLiceで提案
 		</button>
@@ -149,11 +149,11 @@
 	</div>
 	<div class="modal-footer">
 		<label><b>賛成</b><br></label>
-		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','sss')">
+		<button type="button" id="button_vote_agree_sss" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','sss')">
 			<span id="spinner_agree_sss" class="collapse spinner-border spinner-border-sm" role="status"></span>
 			SSSで賛成
 		</button>
-		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','alice')">
+		<button type="button" id="button_vote_agree_alice" class="btn btn-primary" onclick="okModalvote('modal_vote_agree','alice')">
 			<span id="spinner_agree_alice" class="collapse spinner-border spinner-border-sm" role="status"></span>
 			aLiceで賛成
 		</button>
@@ -162,11 +162,11 @@
 	<div class="modal-footer">
 		<label><b>反対</b><br></label>
 
-		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','sss')">
+		<button type="button" id="button_vote_disagree_sss" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','sss')">
 			<span id="spinner_disagree_sss" class="collapse spinner-border spinner-border-sm" role="status"></span>
 			SSSで反対
 		</button>
-		<button type="button" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','alice')">
+		<button type="button" id="button_vote_disagree_alice" class="btn btn-primary" onclick="okModalvote('modal_vote_disagree','alice')">
 			<span id="spinner_disagree_alice" class="collapse spinner-border spinner-border-sm" role="status"></span>
 			aLiceで反対
 		</button>
@@ -196,11 +196,11 @@
 		</div>
 	</div>
 	<div class="modal-footer">
-		<button type="button" class="btn btn-primary" onclick="okModalDecision('sss')">
+		<button type="button" id="button_decision_sss" class="btn btn-primary" onclick="okModalDecision('sss')">
 			<span id="spinner_decision_sss" class="collapse spinner-border spinner-border-sm" role="status"></span>
 			SSSで議決
 		</button>
-		<button type="button" class="btn btn-primary" onclick="okModalDecision('alice')">
+		<button type="button" id="button_decision_alice" class="btn btn-primary" onclick="okModalDecision('alice')">
 			<span id="spinner_decision_alice" class="collapse spinner-border spinner-border-sm" role="status"></span>
 			aLiceで議決
 		</button>
@@ -256,7 +256,7 @@ let nodeUrl;
 let confirmId;
 let transactionId;
 let voteId;
-$('#spinner_ready').collapse('show');
+$('#spinner_ready').removeClass('collapse');
 
 startSymbolApplication(
 
@@ -302,7 +302,7 @@ startSymbolApplication(
 			width: 256, height: 256
 		});
 		document.getElementById("qr_link_publish").href = `https://${location.host}/view.html${location.search}`;
-		$('#spinner_ready').collapse('hide');
+		$('#spinner_ready').addClass('collapse');
 
 	},
 
@@ -323,20 +323,7 @@ startSymbolApplication(
 		console.log(event);
 		if(event.topic.indexOf("confirmed") === 0){
 
-			$('#spinner_agree_sss').collapse('hide');
-			$('#spinner_agree_alice').collapse('hide');
-			$('#spinner_disagree_sss').collapse('hide');
-			$('#spinner_disagree_alice').collapse('hide');
-			$('#spinner_decision_sss').collapse('hide');
-			$('#spinner_decision_alice').collapse('hide');				
-			$('#spinner_update_sss').collapse('hide');
-			$('#spinner_update_alice').collapse('hide');				
-			$('#spinner_append_sss').collapse('hide');
-			$('#spinner_append_alice').collapse('hide');				
-			$("#modal_vote").modal("hide");
-			$("#modal_decision").modal("hide");
-			$("#modal_update").modal("hide");
-			$("#modal_append").modal("hide");
+			releaseLock();			
 			
 			if(confirm("提案先アカウントの状態に更新がありました。リロードします。")){
 				location.reload();
@@ -351,6 +338,37 @@ startSymbolApplication(
 	async function(){/* onVisible 画面フォーカス回復時     */}
 );
 
+function releaseLock(){
+
+	document.getElementById("button_vote_agree_sss").disabled = false;
+	document.getElementById("button_vote_agree_alice").disabled = false;
+	document.getElementById("button_vote_disagree_sss").disabled = false;
+	document.getElementById("button_vote_disagree_alice").disabled = false;
+	document.getElementById("button_decision_sss").disabled = false;
+	document.getElementById("button_decision_alice").disabled = false;
+	document.getElementById("button_update_sss").disabled = false;
+	document.getElementById("button_update_alice").disabled = false;
+	document.getElementById("button_append_sss").disabled = false;
+	document.getElementById("button_append_alice").disabled = false;
+
+	$('#spinner_agree_sss').addClass('collapse');
+	$('#spinner_agree_alice').addClass('collapse');
+	$('#spinner_disagree_sss').addClass('collapse');
+	$('#spinner_disagree_alice').addClass('collapse');
+	$('#spinner_decision_sss').addClass('collapse');
+	$('#spinner_decision_alice').addClass('collapse');				
+	$('#spinner_update_sss').addClass('collapse');
+	$('#spinner_update_alice').addClass('collapse');				
+	$('#spinner_append_sss').addClass('collapse');
+	$('#spinner_append_alice').addClass('collapse');				
+
+
+	$("#modal_vote").modal("hide");
+	$("#modal_decision").modal("hide");
+	$("#modal_update").modal("hide");
+	$("#modal_append").modal("hide");
+
+}
 
 function getParams(params,key,defaultValue){
 	let item = params.get(key);
@@ -359,6 +377,7 @@ function getParams(params,key,defaultValue){
 	}
 	return item;
 }
+
 
 function setSocket(nodeSocket){
 	socketSend(nodeSocket,'block');
@@ -439,18 +458,28 @@ function putTransaction(rawAddress,mosaics,message,callback){
 }
 
 const callbackSSS = function(tx3,address){
-	window.SSS.setTransaction(tx3);
-	window.SSS.requestSign().then((signedTx3) => {
-		// announce
-		nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
-	});
+
+	try{
+		window.SSS.setTransaction(tx3);
+		window.SSS.requestSign().then((signedTx3) => {
+			// announce
+			nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
+		});
+	}catch(error){
+		alert("SSSが有効ではありません");
+		releaseLock();
+	}
 }
 
 const callbackAlice = function(tx3,address){
-
-	const payload = tx3.serialize();
-	location.href = `alice://sign?data=${payload}&type=request_sign_transaction&node=${sym.Convert.utf8ToHex(nodeUrl)}&method=announce&deadline=3600`;
-//	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
+	try{
+		const payload = tx3.serialize();
+		location.href = `alice://sign?data=${payload}&type=request_sign_transaction&node=${sym.Convert.utf8ToHex(nodeUrl)}&method=announce&deadline=3600`;
+	//	nodeFetch(nodeUrl + "/transactions","PUT",{"payload": signedTx3.payload }).then(res=>console.log(res));
+	}catch(error){
+		alert("aLiceが有効ではありません");
+		releaseLock();
+	}
 }
 
 const callbackSelf = function(tx3,address){
@@ -724,6 +753,25 @@ function getWalletCallback(walletType){
 }
 function okModalvote(id,walletType){
 
+	if(walletType === "sss"){
+		if(id.indexOf("disagree")>=0){
+			$('#spinner_disagree_sss').removeClass('collapse');
+		}else{
+			$('#spinner_agree_sss').removeClass('collapse');
+		}
+	}else{
+		if(id.indexOf("disagree")>=0){
+			$('#spinner_disagree_alice').removeClass('collapse');	
+		}else{
+			$('#spinner_agree_alice').removeClass('collapse');
+		}
+	}
+
+	document.getElementById("button_vote_agree_sss").disabled = true;
+	document.getElementById("button_vote_agree_alice").disabled = true;
+	document.getElementById("button_vote_disagree_sss").disabled = true;
+	document.getElementById("button_vote_disagree_alice").disabled = true;
+
 	const address = document.getElementById(id).textContent ;
 	const voteMosaicId = document.getElementById("modal_vote_mosaic").textContent;
 	const callback = getWalletCallback(walletType);
@@ -733,23 +781,18 @@ function okModalvote(id,walletType){
 		sym.EmptyMessage,
 		callback
 	);
-
-	if(walletType === "sss"){
-		if(id.indexOf("disagree")>=0){
-			$('#spinner_disagree_sss').collapse('show');
-		}else{
-			$('#spinner_agree_sss').collapse('show');
-		}
-	}else{
-		if(id.indexOf("disagree")>=0){
-			$('#spinner_disagree_alice').collapse('show');	
-		}else{
-			$('#spinner_agree_alice').collapse('show');
-		}
-	}
 }
 
 function okModalDecision(walletType){
+
+	if(walletType === "sss"){
+		$('#spinner_decision_sss').removeClass('collapse');
+	}else{
+		$('#spinner_decision_alice').removeClass('collapse');
+	}
+
+	document.getElementById("button_decision_sss").disabled = true;
+	document.getElementById("button_decision_alice").disabled = true;
 
 	const callback = getWalletCallback(walletType);
 	const address = document.getElementById("modal_decision_address").textContent ;
@@ -760,41 +803,40 @@ function okModalDecision(walletType){
 		sym.PlainMessage.create(hash),
 		callback
 	);
-	if(walletType === "sss"){
-		$('#spinner_decision_sss').collapse('show');
-	}else{
-		$('#spinner_decision_alice').collapse('show');	
-	}
-//	$("#modal_decision").modal("hide");
-
 }
 
 function okModalUpdate(walletType){
+
+	if(walletType === "sss"){
+		$('#spinner_update_sss').removeClass('collapse');
+	}else{
+		$('#spinner_update_alice').removeClass('collapse');
+	}
+
+	document.getElementById("button_update_sss").disabled = true;
+	document.getElementById("button_update_alice").disabled = true;
 
 	const nextAddress = document.getElementById("modal_update_next");
 	const updateDocument = buildDocument("modal_update_textarea","modal_update_mosaic");
 	const callback = getWalletCallback(walletType);
 	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(updateDocument),callback);
-	if(walletType === "sss"){
-		$('#spinner_update_sss').collapse('show');
-	}else{
-		$('#spinner_update_alice').collapse('show');	
-	}
-	//	$("#modal_update").modal("hide");
 }
 
 function okModalAppend(walletType){
+
+	if(walletType === "sss"){
+		$('#spinner_append_sss').removeClass('collapse');
+	}else{
+		$('#spinner_append_alice').removeClass('collapse');
+	}
+
+	document.getElementById("button_append_sss").disabled = true;
+	document.getElementById("button_append_alice").disabled = true;
 
 	const callback = getWalletCallback(walletType);
 	const nextAddress = document.getElementById("modal_append_next");
 	const appendDocument = buildDocument("modal_append_textarea","modal_append_mosaic");
 	putTransaction(nextAddress.textContent,[],sym.PlainMessage.create(appendDocument),callback);
-//	$("#modal_append").modal("hide");
-	if(walletType === "sss"){
-		$('#spinner_append_sss').collapse('show');
-	}else{
-		$('#spinner_append_alice').collapse('show');	
-	}
 }
 </script>
 </body>

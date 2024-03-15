@@ -36,8 +36,8 @@ Demo用作成を選択すると、ページ内に埋め込んだ秘密鍵が所�
 議決トークンは一度決めたら変更することはできません。投票トークンは提案の度に指定することができます。
 ここで決めた投票トークンは新規作成時のみ議決に必要で、その後デフォルト値として設定されます。<br>
 <br>
-<button onclick="showModalCreate('sss')">SSSで作成</button>
-<button onclick="showModalCreate('self')">Demo用作成</button>
+<button id="button_sss" onclick="showModalCreate('sss')">SSSで作成</button>
+<button id="button_self" onclick="showModalCreate('self')">Demo用作成</button>
 <hr>
 <ul id="history"></ul>
 </div>
@@ -64,8 +64,8 @@ Demo用作成を選択すると、ページ内に埋め込んだ秘密鍵が所�
 
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-primary" onclick="okModalCreate()">
-				<span id="spinner_faucet" class="collapse spinner-border spinner-border-sm" role="status"></span>
+			<button type="button" id="button_create" class="btn btn-primary" onclick="okModalCreate()">
+				<span id="spinner_create" class="collapse spinner-border spinner-border-sm" role="status"></span>
 				作成
 			</button>
 			<button type="button" class="btn btn-default" data-dismiss="modal">キャンセル</button>
@@ -88,6 +88,9 @@ Demo用作成を選択すると、ページ内に埋め込んだ秘密鍵が所�
 <script>
 const CONFIRMED_TOKEN_ID = "193732F8B74E36EF"; //票決トークン
 const VOTE_TOKEN_ID = "47E966473AECCC36";      //投票トークン
+
+document.getElementById("button_sss").disabled = true;
+document.getElementById("button_self").disabled = true;
 
 function addHistory(item,isIndent) {
 	// 新しい <li> 要素を作成
@@ -176,6 +179,8 @@ startSymbolApplication(
 		}
 
 		networkType = sym.NetworkType[CONFIG_SYMBOL_APPLICATION[node.network.identifier]];
+		document.getElementById("button_sss").disabled = false;
+		document.getElementById("button_self").disabled = false;		
 	},
 
 	// onStatusChange 状態変更通知
@@ -186,7 +191,9 @@ startSymbolApplication(
 	async function(event     ){
 		console.log(event);
 		if(event.topic.indexOf("confirmed") === 0){
-			$('#spinner_faucet').collapse('hide');
+			document.getElementById("button_create").disabled = false;
+			$('#spinner_create').addClass('collapse');
+
 			$("#modal_create").modal("hide");
 		} 
 
@@ -198,14 +205,21 @@ startSymbolApplication(
 
 async function showModalCreate(type){
 	walletType = type;
-	await addMosaicForm(walletType);
-	$("#modal_create").modal("show");
+	const res = await addMosaicForm(walletType);
+	if(res){
+		$("#modal_create").modal("show");
+	}
 }
 
 async function addMosaicForm() {
 
 	if(walletType === "sss"){
-		activeAddress = window.SSS.activeAddress;
+		try{
+			activeAddress = window.SSS.activeAddress;
+		}catch(error){
+			alert("SSSが有効ではありません。");
+			return false;
+		}
 	}else{
 		alice = sym.Account.createFromPrivateKey(aliceKey,networkType);
 		activeAddress = alice.address.plain();
@@ -223,7 +237,7 @@ async function addMosaicForm() {
 
 	appendMosaics(formDecision,mosaics);
 	appendMosaics(formVote,mosaics);
-	
+	return true;	
 //	formContainer.appendChild(formDecision); // 新しいフォームを追加
 }
 
@@ -245,6 +259,8 @@ function appendMosaics(elem,mosaics){
 
 async function okModalCreate(){
 
+	document.getElementById("button_create").disabled = true;
+
 	let activeAddress;
 	let activePublicKey;
 
@@ -256,7 +272,6 @@ async function okModalCreate(){
 		activeAddress = alice.address.plain();
 		activePublicKey = alice.publicKey;
 	}
-
 
 	const publicAccount = sym.PublicAccount.createFromPublicKey(activePublicKey,networkType);
 	const confirmId = document.getElementById("form_decision");
@@ -352,7 +367,7 @@ const updateDocument = `
 	addHistory(`ハッシュ：<span class="address">${signedTx.hash}</span>` );
 	addHistory(`<a href='edit.html?vote_id=${voteId.querySelector("select").value}&confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>ドラフト版 Draft Page</a>`);
 //	addHistory(`<a href='edit.html?confirm_id=${confirmId.querySelector("select").value}&tx_id=${signedTx.hash}' target='_blank'>憲章エクスプローラー</a>`);
-	$('#spinner_faucet').collapse('show');
+	$('#spinner_create').removeClass('collapse');
 //	$("#modal_create").modal("hide");
 }
 
